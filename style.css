@@ -1,0 +1,171 @@
+html, body {
+  height: 100%;    
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  background-color: #13171d;
+  font-size: medium;
+  margin: 0;
+  color: #7fdffc;  
+}
+
+a {
+  text-decoration: none;  
+  color: #abe2ff;  
+}
+
+header {
+  display: flex;
+  gap:5px;
+  background-color: #2b2d42;
+  padding-left: 10px;
+  padding: 15px;
+  padding-bottom: 10px;
+  font-weight: 700;
+  font-size: xx-large;
+  font-family: "Rubik Burned", system-ui;
+}
+
+header span {
+  margin-top: -3px;
+  padding: 10px;      
+  text-shadow: 2px 2px 4px rgb(21, 174, 21);
+}
+
+main {  
+  flex: 1;
+  margin: 15px;    
+  font-family: "Kalam", cursive;
+}
+
+main h1 {
+  margin-bottom: 5px;
+  font-family: "Metal Mania", system-ui;
+}
+
+input {
+  height: 40px;
+  flex-grow: 1;
+  border-radius: 5px;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;  
+  border: none;  
+  padding-left: 10px;
+  font-size: large;
+  font-weight: 700;
+  color: #006381;   
+  
+  &::placeholder {
+    font-size: large;
+    font-weight: 700;
+    color: #4c849e;      
+    font-style: italic;
+  }
+
+  &:focus {
+    outline: none;
+    background-color: #253947;
+
+    &::placeholder {
+      color: rgb(137, 245, 242);
+    }
+
+    color: rgb(137, 245, 242);
+    transition: all 0.15s ease-in-out;
+  }
+}
+
+
+#search-button {  
+  width: 80px;
+  background-color: #57c4ff;
+  border-radius: 5px;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;  
+  font-weight: bold;
+  font-size: large;
+  color: rgb(6, 49, 128);
+  border: none;
+
+  &:hover {
+    background-color: #115f58;
+    color: #75f7d4;
+    transition: all 0.1s ease-in-out;
+  }
+
+  &:active {    
+    background-color: rgb(255, 178, 55);
+    color: #115f58;
+  }
+}
+
+.search-div {
+  display: flex;    
+  gap: 1px;
+}
+
+#search-result {  
+  color: #9ced83;
+}
+
+#loading {
+  display: flex;
+  margin-top: 25px;
+  font-size: larger;
+  color: #00ff2a;
+  display: none;
+}
+
+#animeListCount {
+  display: flex;  
+  margin-top: 25px;
+  font-size: larger;
+  color: rgb(255, 178, 55);  
+}
+
+.card-wrapper {
+  display: flex;
+  margin: 20px 0;
+  background-color: #1f232d;
+  font-family: 'Times New Roman', Times, serif;
+  align-items: center;
+  border-radius: 5px;
+}
+
+.card-wrapper img {
+  border-radius: 5px;  
+  border: 3px solid white;
+  margin: 10px;    
+  height: 115px;
+  max-width: 78px;
+}
+
+.card-data h3, h4 {
+  margin: 10px;
+}
+
+.card-data h3 {
+  color: rgb(141, 246, 238);
+}
+
+.sub-data {
+  color: rgb(222, 245, 252);
+}
+
+footer {      
+  text-align: center;
+  background-color: #2b2d42;  
+  font-size: larger;  
+  font-weight: bolder;
+  font-family: "Charm", cursive;
+}
+
+footer p {
+  margin: 8px;
+}
+
+footer b {
+  color: rgb(137, 245, 242);
+}
