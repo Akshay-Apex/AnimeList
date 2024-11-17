@@ -34,6 +34,44 @@ header span {
   text-shadow: 2px 2px 4px rgb(21, 174, 21);
 }
 
+#swf-button-wrapper {  
+  display: flex;
+  flex: 1;
+  justify-content: right;
+  align-items: center;
+}
+
+#sfw-button {
+  width: 80px;
+  height: 40px;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: large;
+  border: none;
+}
+
+.sfw {
+  background-color: #75f7d4;
+  color: #115f58;
+}
+
+.sfw:hover {
+  background-color: #fa4679;
+  color: white;
+  transition: all 0.1s ease-in-out;
+}
+
+.nsfw {
+  background-color: #fa4679;
+  color: white; 
+}
+
+.nsfw:hover {
+  background-color: #75f7d4;
+  color: #115f58;
+  transition: all 0.1s ease-in-out;
+}
+
 main {  
   flex: 1;
   margin: 15px;    
