@@ -48,6 +48,7 @@ header span {
   font-weight: bold;
   font-size: large;
   border: none;
+  transition: all 0.15s ease-in-out;
 }
 
 .sfw {
@@ -55,21 +56,9 @@ header span {
   color: #115f58;
 }
 
-.sfw:hover {
-  background-color: #fa4679;
-  color: white;
-  transition: all 0.1s ease-in-out;
-}
-
 .nsfw {
   background-color: #fa4679;
   color: white; 
-}
-
-.nsfw:hover {
-  background-color: #75f7d4;
-  color: #115f58;
-  transition: all 0.1s ease-in-out;
 }
 
 main {  
@@ -175,20 +164,24 @@ input {
 .card-wrapper img {
   border-radius: 5px;  
   border: 3px solid white;
-  margin: 10px;    
+  margin: 13px;    
   height: 115px;
   max-width: 78px;
+  min-width: 78px;
 }
 
-.card-data h3, h4 {
-  margin: 10px;
+.card-data h4, h5 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 400;
+  margin: 7px;
 }
 
-.card-data h3 {
+.card-data h4 {  
+  font-weight: 500;
   color: rgb(141, 246, 238);
 }
 
-.sub-data {
+.sub-data {  
   color: rgb(222, 245, 252);
 }
 

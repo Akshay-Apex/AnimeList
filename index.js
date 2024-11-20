@@ -46,13 +46,16 @@ function toggleButton() {
 }
 
 
+
+
 async function getAnimeList() {  
+  const jikanURL = 'https://api.jikan.moe/v4';
   search_result.innerHTML = `<span id="loading">Loading...</span> 
                              <span id="animeListCount"></span>`;
   const animeListCount = document.getElementById("animeListCount");
   const loading = document.getElementById("loading");
 
-  const url = `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(query.value.trim())}&sfw=${sfw}`;  
+  const url = `${jikanURL}/anime?q=${encodeURIComponent(query.value.trim())}&sfw=${sfw}`;  
   try {
     loading.style.display = "block";
     const response = await fetch(url);
@@ -70,10 +73,11 @@ async function getAnimeList() {
           <div class="card-wrapper">
             <img src="${animeData.images.jpg.image_url}" alt="Anime Poster">
             <div class="card-data">
-                <h3>${animeData.title_english || animeData.title}</h3> 
-                <h4>Genres: <span class="sub-data">${genresList}</span></h4>
-                <h4>Episodes: <span class="sub-data">${animeData.episodes}</span></h4>     
-                <h4>Status: <span class="sub-data">${animeData.status}</span></h4>          
+                <h4>${animeData.title_english || animeData.title}</h4> 
+                <h5>Genres: <span class="sub-data">${genresList}</span></h5>
+                <h5>Episodes: <span class="sub-data">${animeData.episodes}</span></h5>    
+                <h5>Date: </h5> 
+                <h5>Status: <span class="sub-data">${animeData.status}</span></h5>          
             </div>
           </div>
         `;     
