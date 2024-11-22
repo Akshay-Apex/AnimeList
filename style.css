@@ -5,7 +5,7 @@ html, body {
 body {
   display: flex;
   flex-direction: column;
-  background-color: #13171d;
+  background-color: #13171d;  
   font-size: medium;
   margin: 0;
   color: #7fdffc;  
@@ -49,6 +49,7 @@ header span {
   font-size: large;
   border: none;
   transition: all 0.15s ease-in-out;
+  cursor: pointer;
 }
 
 .sfw {
@@ -74,7 +75,8 @@ main h1 {
 
 input {
   height: 40px;
-  flex-grow: 1;
+  flex-grow: 1; 
+  min-width: 150px;  
   border-radius: 5px;
   border-top-right-radius: 0px;
   border-bottom-right-radius: 0px;  
@@ -104,9 +106,26 @@ input {
   }
 }
 
+#clear-text {
+  border: none;  
+  background-color: white;  
+  margin-left: -0.5px;
+  cursor: pointer;
+  
+  &:active {
+    color: red;
+  }
+}
+
+.search-div input:focus + #clear-text {
+  background-color: #253947;
+  color: white;
+  transition: all 0.15s ease-in-out;
+}
 
 #search-button {  
   width: 80px;
+  margin-left: 1px;
   background-color: #57c4ff;
   border-radius: 5px;
   border-top-left-radius: 0px;
@@ -115,22 +134,11 @@ input {
   font-size: large;
   color: rgb(6, 49, 128);
   border: none;
-
-  &:hover {
-    background-color: #115f58;
-    color: #75f7d4;
-    transition: all 0.1s ease-in-out;
-  }
-
-  &:active {    
-    background-color: rgb(255, 178, 55);
-    color: #115f58;
-  }
+  cursor: pointer;
 }
 
 .search-div {
-  display: flex;    
-  gap: 1px;
+  display: flex;         
 }
 
 #search-result {  
@@ -156,6 +164,7 @@ input {
   display: flex;
   margin: 20px 0;
   background-color: #1f232d;
+  border: 1px solid rgb(50, 50, 50);
   font-family: 'Times New Roman', Times, serif;
   align-items: center;
   border-radius: 5px;
@@ -167,7 +176,8 @@ input {
   margin: 13px;    
   height: 115px;
   max-width: 78px;
-  min-width: 78px;
+  min-width: 78px;  
+  object-fit: cover; 
 }
 
 .card-data h4, h5 {
@@ -199,4 +209,26 @@ footer p {
 
 footer b {
   color: rgb(137, 245, 242);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  #search-button {
+    &:hover {
+      background-color: #115f58;
+      color: #75f7d4;
+      transition: all 0.1s ease-in-out;
+    }
+    
+    &:active {    
+      background-color: rgb(255, 178, 55);
+      color: #115f58;
+    }
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  #search-button:active {     
+      background-color: #115f58;
+      color: #75f7d4;         
+  }
 }

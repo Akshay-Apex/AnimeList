@@ -11,6 +11,11 @@ query.addEventListener("keydown", (event) => {
 });
 
 
+function clearInput() {
+  query.value = "";
+}
+
+
 function sfw_Switch() {  
   const sfw_button = document.getElementById("sfw-button");
   if(sfw == 1) {
@@ -67,19 +72,22 @@ function loadingAnimation(loading) {
 
 
 async function getAnimeList(endPoint) {  
-  const jikanURL = 'https://api.jikan.moe/v4';
+  const jikanAPI_URL = 'https://api.jikan.moe/v4';
   search_result.innerHTML = `<span id="loading"></span> 
                              <span id="animeListCount"></span>`;
   const animeListCount = document.getElementById("animeListCount");
   const loading = document.getElementById("loading");
   const queryValue = (query.value.trim() == "") ? endPoint = 'topAnime' : query.value.trim();
 
-  const animeSearch = `${jikanURL}/anime?q=${encodeURIComponent(queryValue)}&sfw=${sfw}`;
+  const animeSearch = `${jikanAPI_URL}/anime?q=${encodeURIComponent(queryValue)}&sfw=${sfw}`;
   let url;
 
   switch(endPoint) {
-    case 'topAnime': url = `${jikanURL}/top/anime?sfw=${sfw}`; break;
-    default: url = animeSearch;
+    case 'topAnime': 
+      url = `${jikanAPI_URL}/top/anime?sfw=${sfw}`; 
+      break;
+    default: 
+      url = animeSearch;
   }
 
   try {
@@ -119,3 +127,4 @@ async function getAnimeList(endPoint) {
 }
 
 getAnimeList('topAnime');
+
