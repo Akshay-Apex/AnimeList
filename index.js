@@ -67,7 +67,7 @@ function takeScreenshot(wrapper) {
       allowTaint: true,
       useCORS: true,       
       windowWidth: '393px',
-      x: -0.46,              
+      x: -0.42,              
       y: -0.27,
       scale: 2.5
   }).then(canvas => {        
@@ -79,6 +79,7 @@ function takeScreenshot(wrapper) {
       console.error('Error capturing screenshot:', error);
   });
   wrapper.style.backgroundColor = "#1f232d";
+  wrapper.style.borderRadius = "5px";  
 }
 
 

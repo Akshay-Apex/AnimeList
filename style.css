@@ -88,8 +88,8 @@ input {
   
   &::placeholder {
     font-size: large;
-    font-weight: 700;
-    color: #4c849e;      
+    font-weight: 500;
+    color: #006381;         
     font-style: italic;
   }
 
@@ -98,6 +98,7 @@ input {
     background-color: #253947;
 
     &::placeholder {
+      font-weight: 500;
       color: rgb(137, 245, 242);
     }
 
@@ -172,8 +173,7 @@ input {
 .card-wrapper {
   display: flex;
   margin: 20px 0;
-  background-color: #1f232d;
-  border: 1px solid rgb(50, 50, 50);
+  background-color: #1f232d;  
   font-family: 'Times New Roman', Times, serif;
   align-items: center;
   border: 2px solid transparent;
