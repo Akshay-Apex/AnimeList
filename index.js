@@ -17,25 +17,6 @@ function clearInput() {
 }
 
 
-function sfw_Switch() {  
-  const sfw_button = document.getElementById("sfw-button");
-  if(sfw == 1) {
-    sfw = 0;
-    sfw_button.innerText = "NSFW";
-    sfw_button.style.backgroundColor = "#fa4679";
-    sfw_button.style.color = "white";
-    sfw_button.classList.remove("sfw");
-    sfw_button.classList.add("nsfw");
-  } else {
-    sfw = 1;
-    sfw_button.innerText = "SFW";
-    sfw_button.style.backgroundColor = "#75f7d4";
-    sfw_button.style.color = "#115f58";
-    sfw_button.classList.remove("nsfw");
-    sfw_button.classList.add("sfw");   
-  }
-}
-
 function toggleButton() {
   const sfw_button = document.getElementById("sfw-button");
   sfw = (sfw == 1) ? 0 : 1;
