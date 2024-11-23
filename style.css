@@ -176,7 +176,8 @@ input {
   border: 1px solid rgb(50, 50, 50);
   font-family: 'Times New Roman', Times, serif;
   align-items: center;
-  border-radius: 5px;   
+  border: 2px solid transparent;
+  border-radius: 5px;       
 }
 
 .card-wrapper img {

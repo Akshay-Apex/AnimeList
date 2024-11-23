@@ -54,13 +54,13 @@ function loadingAnimation(loading) {
 
 
 function takeScreenshot(wrapper) { 
-  const animeTitle = (wrapper.querySelector('h4').innerText).replace(/[\/\\:*?"<>|;,#\[\](){}^~+%'\0\r\n\t]/g, ' ');   
+  const animeTitle = (wrapper.querySelector('h4').innerText).replace(/[\/\\:*?"<>|]/g, '');
    
-  wrapper.style.border = "2px solid white";
+  wrapper.style.border = "2px solid white";    
   setTimeout(() => {
-    wrapper.style.border = "none";
-  }, 1000);
-  
+    wrapper.style.border = "2px solid transparent";  
+  }, 2000);
+
   wrapper.style.backgroundColor = "#111111";
   wrapper.style.borderRadius = "0px";  
   html2canvas(wrapper, {
@@ -125,10 +125,10 @@ async function getAnimeList(endPoint) {
             <img src="${animeImageURL}" alt="Anime Poster">
             <div class="card-data">
                 <h4>${animeTitle}</h4> 
-                <h5>Genres: <span class="sub-data">${genresList}</span></h5>
-                <h5>Episodes: <span class="sub-data">${animeData.episodes}</span></h5>    
-                <h5>Date: <span class="sub-data">${animeData.aired.string}</span></h5> 
-                <h5>Status: <span class="sub-data">${animeData.status}</span></h5>          
+                <h5><b>Genres:</b> <span class="sub-data">${genresList}</span></h5>
+                <h5><b>Episodes:</b> <span class="sub-data">${animeData.episodes}</span></h5>    
+                <h5><b>Date:</b> <span class="sub-data">${animeData.aired.string}</span></h5> 
+                <h5><b>Status:</b> <span class="sub-data">${animeData.status}</span></h5>          
             </div>
           </div>          
         `;                   
