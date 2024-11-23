@@ -1,6 +1,22 @@
 # AnimeList
-• This App lets you access the Anime Poster, Name, Genres, Episodes, and Status  
-• Lists the retrieved data in acending order with the newest Anime listed first  
-• This also has a filter for NSFW and SFW
 
-This project is making use of "Jikan API" which is an Open-Source project 
+AnimeList is a web application that allows users to explore and interact with detailed information about their favorite anime, including:
+
+- **Anime Poster**  
+- **Title**  
+- **Genres**  
+- **Number of Episodes**  
+- **Current Status**
+
+## Features
+- Displays a list of the **Top Anime** on load.
+- Includes a **filter** to toggle between **NSFW** and **SFW** content.
+- Offers the ability to **save screenshots** of anime cards with the anime title automatically used as the file name.
+
+---
+
+## API
+This project utilizes the [Jikan API](https://jikan.moe/) – an open-source API for accessing data from MyAnimeList.
+
+
+
