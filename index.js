@@ -56,13 +56,18 @@ function loadingAnimation(loading) {
 function takeScreenshot(wrapper) { 
   const animeTitle = (wrapper.querySelector('h4').innerText).replace(/[\/\\:*?"<>|;,#\[\](){}^~+%'\0\r\n\t]/g, ' ');   
    
+  wrapper.style.border = "2px solid white";
+  setTimeout(() => {
+    wrapper.style.border = "none";
+  }, 1000);
+  
   wrapper.style.backgroundColor = "#111111";
-  wrapper.style.borderRadius = "0px";
+  wrapper.style.borderRadius = "0px";  
   html2canvas(wrapper, {
       allowTaint: true,
       useCORS: true,       
       windowWidth: '393px',
-      x: -0.55,              
+      x: -0.46,              
       y: -0.27,
       scale: 2.5
   }).then(canvas => {        
@@ -116,7 +121,7 @@ async function getAnimeList(endPoint) {
         const animeTitle = animeData.title_english || animeData.title;
 
         search_result.innerHTML += `
-          <div id="${i}" class="card-wrapper" onclick="takeScreenshot(this)">
+          <div id="${i}" class="card-wrapper" onclick="takeScreenshot(this)" tabindex="0">
             <img src="${animeImageURL}" alt="Anime Poster">
             <div class="card-data">
                 <h4>${animeTitle}</h4> 
