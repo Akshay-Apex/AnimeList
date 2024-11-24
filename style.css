@@ -180,14 +180,33 @@ input {
   border-radius: 5px;       
 }
 
-.card-wrapper img {
-  border-radius: 5px;  
-  border: 3px solid white;
-  margin: 13px;    
+.image-container {
   height: 115px;  
   max-width: 78px;
   min-width: 78px;  
-  object-fit: cover; 
+  margin: 13px;  
+  border: 3px solid white;    
+  border-radius: 5px;    
+  padding: 0;
+  color: white;
+}
+
+.image-container img {  
+  height: 115px;  
+  max-width: 78px;
+  min-width: 78px; 
+  border-radius: 2px;  
+  object-fit: cover;   
+}
+
+.restricted-18 {
+  background-color: #eb4f34;
+  padding: 3px 5px;
+  border-radius: 5px;
+  position: absolute;  
+  font-size: xx-small;
+  font-weight: bolder;
+  display: none;
 }
 
 .card-data h4, h5 {
@@ -203,6 +222,10 @@ input {
 
 .sub-data {  
   color: rgb(222, 245, 252);
+}
+
+.episode-time {
+  color: #ffe227;
 }
 
 footer {      

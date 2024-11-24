@@ -121,18 +121,27 @@ async function getAnimeList(endPoint) {
         const animeImageURL = animeData.images.jpg.image_url;   
         const animeTitle = animeData.title_english || animeData.title;
 
+        console.log(animeData); //Remove this line
         search_result.innerHTML += `
           <div id="${i}" class="card-wrapper" onclick="takeScreenshot(this)" tabindex="0">
-            <img src="${animeImageURL}" alt="Anime Poster">
+            <div class="image-container">
+              <span class="restricted-18">18+</span>
+              <img src="${animeImageURL}" alt="Anime Poster">
+            </div>
             <div class="card-data">
                 <h4>${animeTitle}</h4> 
                 <h5><b>Genres:</b> <span class="sub-data">${genresList}</span></h5>
-                <h5><b>Episodes:</b> <span class="sub-data">${animeData.episodes}</span></h5>    
+                <h5><b>Episodes:</b> <span class="sub-data">${animeData.episodes} - <span class="episode-time">[ ${animeData.duration} ]</span></span></h5>    
                 <h5><b>Date:</b> <span class="sub-data">${animeData.aired.string}</span></h5> 
                 <h5><b>Status:</b> <span class="sub-data">${animeData.status}</span></h5>          
             </div>
           </div>          
-        `;                   
+        `;      
+        
+        
+        if(animeData.rating == "R+ - Mild Nudity" || animeData.rating == "Rx - Hentai") {
+          const rating = document.getElementsByClassName("restricted-18")[i].style.display = "block";
+        }
       }
     } else {
       animeListCount.innerText = "Showing 0 results: ";
