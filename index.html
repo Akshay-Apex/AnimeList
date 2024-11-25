@@ -27,25 +27,20 @@
   <header>
     <img src="AnimeList_Logo.png" alt="" width="50px" height="50px">    
     <span><a href="index.html">AnimeList</a></span>
+
     <div id="swf-button-wrapper">
       <button id="sfw-button" class="sfw" onclick="toggleButton()">SFW</button>
     </div>
   </header>
 
   <main>
-    <h1>Search Anime</h1>
-    <div class="search-div">
-      <input type="text" id="query" placeholder="Enter anime name...">
-
-      <button id="clear-text" onclick="clearInput()">
-        <span class="material-symbols-outlined">close</span>
-      </button>
-
-      <button id="search-button" onclick="getAnimeList(null)">Search</button> 
-    </div>
+    <h1>Search Anime</h1>    
+    <div id="search-div">
+      <input type="text" id="query" placeholder="Enter anime name...">      
+      <span id="clear-text" onclick="clearInput()" class="material-symbols-outlined">close</span>      
+    </div>    
 
     <div id="search-result"></div>
-
   </main>
   
   <footer>

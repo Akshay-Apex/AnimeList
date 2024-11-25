@@ -73,13 +73,12 @@ main h1 {
   font-family: "Metal Mania", system-ui;
 }
 
-input {
+#query {
   height: 40px;
   flex-grow: 1; 
-  min-width: 150px;  
   border-radius: 5px;
   border-top-right-radius: 0px;
-  border-bottom-right-radius: 0px;  
+  border-bottom-right-radius: 0px;   
   border: none;  
   padding-left: 10px;
   font-size: large;
@@ -94,53 +93,39 @@ input {
   }
 
   &:focus {
-    outline: none;
-    background-color: #253947;
+    outline: none;      
+    color: rgb(137, 245, 242);
+    transition: all 0.15s ease-in-out;  
 
     &::placeholder {
       font-weight: 500;
       color: rgb(137, 245, 242);
     }
-
-    color: rgb(137, 245, 242);
-    transition: all 0.15s ease-in-out;
   }
 }
 
-#clear-text {
-  border: none;  
-  background-color: white;  
-  margin-left: -0.5px;
+#clear-text {  
+  background-color: white;    
+  color: #006381;   
+  padding: 9px;
   cursor: pointer;
-  
-  &:active {
-    color: red;
-  }
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px; 
 }
 
-.search-div input:focus + #clear-text {
+#search-div:focus-within #query {
   background-color: #253947;
-  color: white;
+}
+
+#search-div:focus-within #clear-text {
+  background-color: #253947;
+  color: rgb(137, 245, 242);
   transition: all 0.15s ease-in-out;
 }
 
-#search-button {  
-  width: 80px;
-  margin-left: 1px;
-  background-color: #57c4ff;
-  border-radius: 5px;
-  border-top-left-radius: 0px;
-  border-bottom-left-radius: 0px;  
-  font-weight: bold;
-  font-size: large;
-  color: rgb(6, 49, 128);
-  border: none;
-  cursor: pointer;
-  transition: all 0.15s ease-in-out;
-}
-
-.search-div {
-  display: flex;         
+#search-div {
+  display: flex;   
+  flex-grow: 1;
 }
 
 #search-result {  
@@ -228,6 +213,10 @@ input {
   color: #ffe227;
 }
 
+.scored-by {
+  color: #00ff2a;
+}
+
 footer {      
   text-align: center;
   background-color: #2b2d42;  
@@ -244,6 +233,7 @@ footer b {
   color: rgb(137, 245, 242);
 }
 
+/*
 @media (hover: hover) and (pointer: fine) {
   #search-button {
     &:hover {
@@ -264,3 +254,4 @@ footer b {
       color: #75f7d4;         
   }
 }
+  */

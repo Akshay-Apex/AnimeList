@@ -1,20 +1,46 @@
 const query = document.getElementById("query");
-const search_button = document.getElementById("search-button");
+const clear_text = document.querySelector("#clear-text");
 let search_result = document.getElementById("search-result");
 let sfw = 1;
 
 
 query.addEventListener("keydown", (event) => {
   if(event.key == "Enter") {    
-    search_button.click();        
+    getAnimeList(null);      
   }
 });
 
 
-function clearInput() {
+let typingTimeout;
+query.addEventListener("input", () => {
+  clearTimeout(typingTimeout);
+
+  typingTimeout = setTimeout(() => {    
+    getAnimeList(null);  
+  }, 1000);
+});
+
+
+function clearInput() {  
   query.focus();
   query.value = "";
+  query.style.backgroundColor = "#006381";
+  clear_text.style.backgroundColor = "#006381";
+  setTimeout(() => {
+    query.style.backgroundColor = "#253947";
+    clear_text.style.backgroundColor = "#253947";
+  }, 500);
 }
+
+query.addEventListener("blur", () => {
+  query.style.backgroundColor = "white";  
+  clear_text.style.backgroundColor = "white";  
+});
+
+query.addEventListener("focus", () => {
+  query.style.backgroundColor = "#253947";  
+  clear_text.style.backgroundColor = "#253947";  
+});
 
 
 function toggleButton() {
@@ -30,6 +56,7 @@ function toggleButton() {
     sfw_button.classList.remove("nsfw");
     sfw_button.classList.add("sfw");
   }
+  getAnimeList(null);
 }
 
 
@@ -62,13 +89,13 @@ function takeScreenshot(wrapper) {
   }, 2000);
 
   wrapper.style.backgroundColor = "#111111";
-  wrapper.style.borderRadius = "0px";  
+  wrapper.style.borderRadius = "10px";  
   html2canvas(wrapper, {
       allowTaint: true,
       useCORS: true,       
-      windowWidth: '393px',
-      x: -0.42,              
-      y: -0.27,
+      windowWidth: '400px',
+      x: 0.2,              
+      y: -0.2,
       scale: 2.5
   }).then(canvas => {        
       const downloadLink = document.createElement('a');
@@ -118,7 +145,7 @@ async function getAnimeList(endPoint) {
       for(let i = 0; i < dataLength; i++) {
         const animeData = data.data[i];      
         const genresList = animeData.genres.map(genre => genre.name).join(' / ');   
-        const animeImageURL = animeData.images.jpg.image_url;   
+        const animeImageURL = animeData.images.jpg.large_image_url;   
         const animeTitle = animeData.title_english || animeData.title;
 
         console.log(animeData); //Remove this line
@@ -134,6 +161,7 @@ async function getAnimeList(endPoint) {
                 <h5><b>Episodes:</b> <span class="sub-data">${animeData.episodes} - <span class="episode-time">[ ${animeData.duration} ]</span></span></h5>    
                 <h5><b>Date:</b> <span class="sub-data">${animeData.aired.string}</span></h5> 
                 <h5><b>Status:</b> <span class="sub-data">${animeData.status}</span></h5>          
+                <h5><b>Score:</b> <span class="sub-data">${animeData.score} - <span class="scored-by">[ by ${animeData.scored_by} people ]</span></span></h5>          
             </div>
           </div>          
         `;      
