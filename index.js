@@ -5,12 +5,27 @@ const clearFontLink = document.querySelector("#clearFont");
 let search_result = document.getElementById("search-result");
 let sfw = 1;
 
-
 query.addEventListener("keydown", (event) => {
   if(event.key == "Enter") {    
-    getAnimeList(null);      
+    getAnimeList('default');      
   }
 });
+
+
+let wasOffline = false;
+function refresh_Search_When_Online() {
+  if (!navigator.onLine) {
+    wasOffline = true;
+    return;
+  } 
+  
+  if(wasOffline) {
+    getAnimeList('default');
+    wasOffline = false;
+  }
+}
+
+setInterval(refresh_Search_When_Online, 3000);
 
 
 let typingTimeout;
@@ -21,29 +36,40 @@ query.addEventListener("input", () => {
   typingTimeout = setTimeout(() => {  
     if(prevQueryString != query.value.trim() && query.value.trim() != '') {
       prevQueryString = query.value.trim();
-      getAnimeList(null);  
+      getAnimeList('default');  
     }
   }, 1000);
 
+  //Changing the symbol based on input value and currently active symbol
   if(symbolState == "clear" && query.value.trim() == '') {
-    input_symbol.innerText = "search";
-    input_symbol.style.display = "none";
+    input_symbol.style.transition = "all 0s ease-in-out";
+    input_symbol.style.color = "rgba(0, 0, 0, 0)";    
+
     clearFontLink.disabled= true;
     searchFontLink.disabled= false;
-    input_symbol.onclick = () => { getAnimeList(null) };
-
-    symbolState = "search";
-    input_symbol.style.display = "block";
+    input_symbol.innerText = "search";
+    input_symbol.onclick = () => { getAnimeList('default') };
+    symbolState = "search";        
+        
+    setTimeout(() => {
+      input_symbol.style.color = "rgb(137, 245, 242)";    
+      input_symbol.style.transition = "all 0.15s ease-in-out";  
+    }, 100);    
 
   } else if(symbolState == "search" && query.value.trim() != '') {
-    input_symbol.innerText = "close";
-    input_symbol.style.display = "none";
+    input_symbol.style.transition = "all 0s ease-in-out";
+    input_symbol.style.color = "rgba(0, 0, 0, 0)";
+    
     searchFontLink.disabled= true;
     clearFontLink.disabled= false;
+    input_symbol.innerText = "close";    
     input_symbol.onclick = clearInput;
-
     symbolState = "clear";
-    input_symbol.style.display = "block";
+        
+    setTimeout(() => {
+      input_symbol.style.color = "rgb(137, 245, 242)";   
+      input_symbol.style.transition = "all 0.15s ease-in-out";   
+    }, 100);    
   }
 });
 
@@ -65,11 +91,13 @@ function clearInput() {
 query.addEventListener("blur", () => {
   query.style.backgroundColor = "white";  
   input_symbol.style.backgroundColor = "white";  
+  input_symbol.style.color = "#006381";   
 });
 
 query.addEventListener("focus", () => {
   query.style.backgroundColor = "#253947";  
   input_symbol.style.backgroundColor = "#253947";  
+  input_symbol.style.color = "rgb(137, 245, 242)";  
 });
 
 
@@ -86,7 +114,7 @@ function toggleButton() {
     sfw_button.classList.remove("nsfw");
     sfw_button.classList.add("sfw");
   }
-  getAnimeList(null);
+  getAnimeList('default');
 }
 
 
@@ -110,12 +138,21 @@ function loadingAnimation(loading) {
 }
 
 
-function takeScreenshot(wrapper) { 
+function takeScreenshot(wrapper, imgContainer, img) { 
   const animeTitle = (wrapper.querySelector('h4').innerText).replace(/[\/\\:*?"<>|]/g, '');
-   
-  wrapper.style.border = "2px solid white";    
+
+  imgContainer.style.height = "130px";
+  imgContainer.style.minWidth = "88px";
+  imgContainer.style.maxWidth = "88px";
+
+  img.style.height = "130px";
+  img.style.minWidth = "88px";
+  img.style.maxWidth = "88px";
+     
+  wrapper.style.paddingLeft = "7px";
+  wrapper.style.border = "3px solid white";    
   setTimeout(() => {
-    wrapper.style.border = "2px solid transparent";  
+    wrapper.style.border = "3px solid transparent";  
   }, 2000);
 
   wrapper.style.backgroundColor = "#111111";
@@ -123,10 +160,10 @@ function takeScreenshot(wrapper) {
   html2canvas(wrapper, {
       allowTaint: true,
       useCORS: true,       
-      windowWidth: '400px',
+      windowWidth: '440px',
       x: 0.2,              
-      y: -0.2,
-      scale: 2.5
+      y: -0.25,
+      scale: 5
   }).then(canvas => {        
       const downloadLink = document.createElement('a');
       downloadLink.href = canvas.toDataURL('image/png');
@@ -135,6 +172,16 @@ function takeScreenshot(wrapper) {
   }).catch(error => {
       console.error('Error capturing screenshot:', error);
   });
+
+  imgContainer.style.height = "115px";
+  imgContainer.style.minWidth = "78px";
+  imgContainer.style.maxWidth = "78px";
+
+  img.style.height = "115px";
+  img.style.minWidth = "78px";
+  img.style.maxWidth = "78px";
+
+  wrapper.style.paddingLeft = "0px";
   wrapper.style.backgroundColor = "#1f232d";
   wrapper.style.borderRadius = "5px";  
 }
@@ -147,12 +194,11 @@ async function getAnimeList(endPoint) {
                              <span id="animeListCount"></span>`;
   const animeListCount = document.getElementById("animeListCount");
   const loading = document.getElementById("loading");
-  const errorDisplay = document.getElementById("error");
-  const queryValue = (query.value.trim() == "") ? endPoint = 'topAnime' : query.value.trim();
-  
-  const animeSearch = `${jikanAPI_URL}/anime?q=${encodeURIComponent(queryValue)}&sfw=${sfw}`;
+  const errorDisplay = document.getElementById("error");  
+  const animeSearch = `${jikanAPI_URL}/anime?q=${encodeURIComponent(query.value.trim())}&sfw=${sfw}`;
   let url;
-
+  
+  (query.value.trim() == "") ? endPoint = 'topAnime' : null;
   switch(endPoint) {
     case 'topAnime': 
       url = `${jikanAPI_URL}/top/anime?sfw=${sfw}`; 
@@ -165,6 +211,7 @@ async function getAnimeList(endPoint) {
     errorDisplay.style.display = "none";
     loading.style.display = "block";
     loadingAnimation(loading);
+
     const response = await fetch(url);
     const data = await response.json();
     const dataLength = data.pagination.items.count;    
@@ -176,10 +223,10 @@ async function getAnimeList(endPoint) {
         const animeData = data.data[i];      
         const genresList = animeData.genres.map(genre => genre.name).join(' / ');   
         const animeImageURL = animeData.images.jpg.large_image_url;   
-        const animeTitle = animeData.title_english || animeData.title;
-        
+        const animeTitle = animeData.title_english || animeData.title;                        
+
         search_result.innerHTML += `
-          <div id="${i}" class="card-wrapper" onclick="takeScreenshot(this)" tabindex="0">
+          <div id="${i}" class="card-wrapper" onclick="takeScreenshot(this, this.querySelector('.image-container') ,this.querySelector('img'))" tabindex="0">
             <div class="image-container">
               <span class="restricted-18">18+</span>
               <img src="${animeImageURL}" alt="Anime Poster">
@@ -189,15 +236,15 @@ async function getAnimeList(endPoint) {
                 <h5><b>Genres:</b> <span class="sub-data">${genresList}</span></h5>
                 <h5><b>Episodes:</b> <span class="sub-data">${animeData.episodes} - <span class="episode-time">[ ${animeData.duration} ]</span></span></h5>    
                 <h5><b>Date:</b> <span class="sub-data">${animeData.aired.string}</span></h5> 
-                <h5><b>Status:</b> <span class="sub-data">${animeData.status}</span></h5>          
-                <h5><b>Score:</b> <span class="sub-data">${animeData.score} - <span class="scored-by">[ by ${animeData.scored_by} people ]</span></span></h5>          
+                <h5><b>Status:</b> <span class="sub-data">${animeData.status}</span></h5>                       
+                <h5><b>Score:</b> <span class="sub-data">${animeData.score} - <span class="scored-by">[ by ${Number(animeData.scored_by).toLocaleString()} people ]</span></span></h5>          
             </div>
           </div>          
         `;      
         
         
         if(animeData.rating == "R+ - Mild Nudity" || animeData.rating == "Rx - Hentai") {
-          const rating = document.getElementsByClassName("restricted-18")[i].style.display = "block";
+          document.getElementsByClassName("restricted-18")[i].style.display = "block";
         }
       }
     } else {
@@ -206,7 +253,7 @@ async function getAnimeList(endPoint) {
   } catch(error) {    
     loading.style.display = "none";
     errorDisplay.style.display = "block";
-    errorDisplay.innerText = error.message;
+    errorDisplay.innerHTML = `${error.message}!`;
     console.log(error.message);
   } 
 }
