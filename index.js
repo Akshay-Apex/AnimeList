@@ -1,5 +1,7 @@
 const query = document.getElementById("query");
-const clear_text = document.querySelector("#clear-text");
+const input_symbol = document.querySelector("#input-symbol");
+const searchFontLink = document.querySelector("#searchFont");
+const clearFontLink = document.querySelector("#clearFont");
 let search_result = document.getElementById("search-result");
 let sfw = 1;
 
@@ -12,34 +14,62 @@ query.addEventListener("keydown", (event) => {
 
 
 let typingTimeout;
+let prevQueryString;
+let symbolState = "search";
 query.addEventListener("input", () => {
   clearTimeout(typingTimeout);
-
-  typingTimeout = setTimeout(() => {    
-    getAnimeList(null);  
+  typingTimeout = setTimeout(() => {  
+    if(prevQueryString != query.value.trim() && query.value.trim() != '') {
+      prevQueryString = query.value.trim();
+      getAnimeList(null);  
+    }
   }, 1000);
+
+  if(symbolState == "clear" && query.value.trim() == '') {
+    input_symbol.innerText = "search";
+    input_symbol.style.display = "none";
+    clearFontLink.disabled= true;
+    searchFontLink.disabled= false;
+    input_symbol.onclick = () => { getAnimeList(null) };
+
+    symbolState = "search";
+    input_symbol.style.display = "block";
+
+  } else if(symbolState == "search" && query.value.trim() != '') {
+    input_symbol.innerText = "close";
+    input_symbol.style.display = "none";
+    searchFontLink.disabled= true;
+    clearFontLink.disabled= false;
+    input_symbol.onclick = clearInput;
+
+    symbolState = "clear";
+    input_symbol.style.display = "block";
+  }
 });
 
 
 function clearInput() {  
   query.focus();
   query.value = "";
+  const event = new Event("input"); 
+  query.dispatchEvent(event); 
+
   query.style.backgroundColor = "#006381";
-  clear_text.style.backgroundColor = "#006381";
+  input_symbol.style.backgroundColor = "#006381";
   setTimeout(() => {
     query.style.backgroundColor = "#253947";
-    clear_text.style.backgroundColor = "#253947";
+    input_symbol.style.backgroundColor = "#253947";
   }, 500);
 }
 
 query.addEventListener("blur", () => {
   query.style.backgroundColor = "white";  
-  clear_text.style.backgroundColor = "white";  
+  input_symbol.style.backgroundColor = "white";  
 });
 
 query.addEventListener("focus", () => {
   query.style.backgroundColor = "#253947";  
-  clear_text.style.backgroundColor = "#253947";  
+  input_symbol.style.backgroundColor = "#253947";  
 });
 
 
@@ -147,8 +177,7 @@ async function getAnimeList(endPoint) {
         const genresList = animeData.genres.map(genre => genre.name).join(' / ');   
         const animeImageURL = animeData.images.jpg.large_image_url;   
         const animeTitle = animeData.title_english || animeData.title;
-
-        console.log(animeData); //Remove this line
+        
         search_result.innerHTML += `
           <div id="${i}" class="card-wrapper" onclick="takeScreenshot(this)" tabindex="0">
             <div class="image-container">
@@ -183,7 +212,3 @@ async function getAnimeList(endPoint) {
 }
 
 getAnimeList('topAnime');
-
-
-
-

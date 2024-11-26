@@ -14,9 +14,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Barriecito&family=Fontdiner+Swanky&family=Frijole&family=Kalam:wght@300;400;700&family=Metal+Mania&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Rubik+Burned&family=Rye&display=swap" rel="stylesheet">
   <!-- Footer Tag Font -->
   <link href="https://fonts.googleapis.com/css2?family=Barriecito&family=Charm:wght@400;700&family=Fontdiner+Swanky&family=Frijole&family=Kalam:wght@300;400;700&family=Metal+Mania&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Rubik+Burned&family=Rye&display=swap" rel="stylesheet">
-  <!-- Close Symbol Font -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=close" />
-
+  <!-- Close Symbol Font (Dynamically Enabled From JS) -->
+  <link id="clearFont" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=close" />
+  <!-- Search Symbol Font (Dynamically Enabled From JS) -->
+  <link id="searchFont" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=search" />
 
   <title>AnimeList</title>
   <link rel="icon" href="AnimeList_Logo.png" type="image/x-icon">
@@ -37,7 +38,7 @@
     <h1>Search Anime</h1>    
     <div id="search-div">
       <input type="text" id="query" placeholder="Enter anime name...">      
-      <span id="clear-text" onclick="clearInput()" class="material-symbols-outlined">close</span>      
+      <span id="input-symbol" onclick="getAnimeList(null)" class="material-symbols-outlined">search</span>            
     </div>    
 
     <div id="search-result"></div>

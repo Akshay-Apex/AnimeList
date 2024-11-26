@@ -104,9 +104,10 @@ main h1 {
   }
 }
 
-#clear-text {  
+#input-symbol {  
   background-color: white;    
-  color: #006381;   
+  color: #006381;  
+  margin-left: -1px; 
   padding: 9px;
   cursor: pointer;
   border-top-right-radius: 5px;
@@ -117,7 +118,7 @@ main h1 {
   background-color: #253947;
 }
 
-#search-div:focus-within #clear-text {
+#search-div:focus-within #input-symbol {
   background-color: #253947;
   color: rgb(137, 245, 242);
   transition: all 0.15s ease-in-out;
@@ -232,26 +233,3 @@ footer p {
 footer b {
   color: rgb(137, 245, 242);
 }
-
-/*
-@media (hover: hover) and (pointer: fine) {
-  #search-button {
-    &:hover {
-      background-color: #115f58;
-      color: #75f7d4;      
-    }
-    
-    &:active {    
-      background-color: rgb(255, 178, 55);
-      color: #115f58;
-    }
-  }
-}
-
-@media (hover: none), (pointer: coarse) {
-  #search-button:active {     
-      background-color: #115f58;
-      color: #75f7d4;         
-  }
-}
-  */
