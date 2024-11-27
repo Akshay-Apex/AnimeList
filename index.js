@@ -161,8 +161,8 @@ function takeScreenshot(wrapper, imgContainer, img) {
       allowTaint: true,
       useCORS: true,       
       windowWidth: '440px',
-      x: 0.2,              
-      y: -0.25,
+      x: 0.15,              
+      y: -0.2,
       scale: 5
   }).then(canvas => {        
       const downloadLink = document.createElement('a');
