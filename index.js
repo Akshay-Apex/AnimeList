@@ -5,13 +5,6 @@ const clearFontLink = document.querySelector("#clearFont");
 let search_result = document.getElementById("search-result");
 let sfw = 1;
 
-query.addEventListener("keydown", (event) => {
-  if(event.key == "Enter") {    
-    getAnimeList('default');      
-  }
-});
-
-
 let wasOffline = false;
 function refresh_Search_When_Online() {
   if (!navigator.onLine) {
@@ -70,6 +63,14 @@ query.addEventListener("input", () => {
       input_symbol.style.color = "rgb(137, 245, 242)";   
       input_symbol.style.transition = "all 0.15s ease-in-out";   
     }, 100);    
+  }
+});
+
+
+query.addEventListener("keydown", (event) => {
+  if(event.key == "Enter") {  
+    clearTimeout(typingTimeout);
+    getAnimeList('default');      
   }
 });
 
