@@ -5,6 +5,11 @@ const clearFontLink = document.querySelector("#clearFont");
 let search_result = document.getElementById("search-result");
 let sfw = 1;
 
+//Disables autocomplete on query input tag for Windows and Linux (Desktop)
+(/Windows/i.test(navigator.userAgent) || (/Linux/i.test(navigator.userAgent) && !/Android/i.test(navigator.userAgent))) ? query.setAttribute('autocomplete', 'off') : null;
+
+
+//Restarts the fetch when online, if the device was offline during fetch 
 let wasOffline = false;
 function refresh_Search_When_Online() {
   if (!navigator.onLine) {
@@ -17,10 +22,10 @@ function refresh_Search_When_Online() {
     wasOffline = false;
   }
 }
-
 setInterval(refresh_Search_When_Online, 3000);
 
 
+//Triggers fetch after 1s if user inputs a value
 let typingTimeout;
 let prevQueryString;
 let symbolState = "search";
@@ -33,7 +38,7 @@ query.addEventListener("input", () => {
     }
   }, 1000);
 
-  //Changing the symbol based on input value and currently active symbol
+  //Changes the symbol next to query input tag, based on if input value is empty or not
   if(symbolState == "clear" && query.value.trim() == '') {
     input_symbol.style.transition = "all 0s ease-in-out";
     input_symbol.style.color = "rgba(0, 0, 0, 0)";    
@@ -67,6 +72,7 @@ query.addEventListener("input", () => {
 });
 
 
+//Triggers fetch on 'Enter' key
 query.addEventListener("keydown", (event) => {
   if(event.key == "Enter") {  
     clearTimeout(typingTimeout);
@@ -75,6 +81,7 @@ query.addEventListener("keydown", (event) => {
 });
 
 
+//Clears input value
 function clearInput() {  
   query.focus();
   query.value = "";
@@ -89,12 +96,14 @@ function clearInput() {
   }, 500);
 }
 
+//Changes colors of input on blur
 query.addEventListener("blur", () => {
   query.style.backgroundColor = "white";  
   input_symbol.style.backgroundColor = "white";  
   input_symbol.style.color = "#006381";   
 });
 
+//Changes colors of input on focus
 query.addEventListener("focus", () => {
   query.style.backgroundColor = "#253947";  
   input_symbol.style.backgroundColor = "#253947";  
@@ -102,6 +111,7 @@ query.addEventListener("focus", () => {
 });
 
 
+//Toggles between SFW and NSFW and triggers fetch after each toggle
 function toggleButton() {
   const sfw_button = document.getElementById("sfw-button");
   sfw = (sfw == 1) ? 0 : 1;
@@ -119,6 +129,7 @@ function toggleButton() {
 }
 
 
+//Loading Animation
 function loadingAnimation(loading) {
   const computedStyle = window.getComputedStyle(loading);
   if(computedStyle.display === "block") {   
@@ -139,8 +150,12 @@ function loadingAnimation(loading) {
 }
 
 
+//Takes screenshot of Anime Card and save it with the Anime name as a PNG image file
 function takeScreenshot(wrapper, imgContainer, img) { 
-  const animeTitle = (wrapper.querySelector('h4').innerText).replace(/[\/\\:*?"<>|]/g, '');
+  //Replaces illegal characters for file naming
+  let animeTitle = (wrapper.querySelector('h4').innerText).replace(/[\/\\:*?"<>|]/g, '');
+  //Replaces Diacritical marks from the file name
+  animeTitle = animeTitle.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
   imgContainer.style.height = "130px";
   imgContainer.style.minWidth = "88px";
@@ -158,6 +173,8 @@ function takeScreenshot(wrapper, imgContainer, img) {
 
   wrapper.style.backgroundColor = "#111111";
   wrapper.style.borderRadius = "10px";  
+
+  //Draws Element Node to canvas
   html2canvas(wrapper, {
       allowTaint: true,
       useCORS: true,       
@@ -188,6 +205,7 @@ function takeScreenshot(wrapper, imgContainer, img) {
 }
 
 
+//Fetches the anime data using Jikan API
 async function getAnimeList(endPoint) {  
   const jikanAPI_URL = 'https://api.jikan.moe/v4';
   search_result.innerHTML = `<span id="loading"></span> 
