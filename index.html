@@ -33,7 +33,7 @@
   <main>
     <h1>Search Anime</h1>    
     <div id="search-div-container">
-      <button id="filter-button" onclick="alert('Currently not available')">
+      <button id="filter-button" onclick="alert('The filter option is currently unavailable.')">
         <svg id="filter-svg" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="white">
           <path d="M440-160q-17 0-28.5-11.5T400-200v-240L168-736q-15-20-4.5-42t36.5-22h560q26 0 36.5 22t-4.5 42L560-440v240q0 17-11.5 28.5T520-160h-80Zm40-308 198-252H282l198 252Zm0 0Z"/>
         </svg>
@@ -53,6 +53,16 @@
         </span>            
       </div>
     </div>    
+
+    <div id="result-status-container">
+      <span id="loading"></span> 
+      <span id="error"></span>
+      <span id="animeListCount"></span>
+      <svg id="screenshot-button" onclick="screenshot_Button_Toggle(this, document.querySelector('#watch-order-button'))" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed">
+        <path d="M120-160q-33 0-56.5-23.5T40-240v-480q0-33 23.5-56.5T120-800h720q33 0 56.5 23.5T920-720v480q0 33-23.5 56.5T840-160H120Zm40-560h-40v480h40v-480Zm80 480h480v-480H240v480Zm560-480v480h40v-480h-40Zm0 0h40-40Zm-640 0h-40 40Zm360 440h160v-160h-60v100H520v60ZM280-520h60v-100h100v-60H280v160Z"/>
+      </svg>
+      <button id="watch-order-button" onclick="screenshot_Button_Toggle(this, document.querySelector('#screenshot-button'))">Watch Order</button>
+    </div>
 
     <div id="search-result"></div>
   </main>

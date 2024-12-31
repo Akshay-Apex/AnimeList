@@ -2,11 +2,23 @@ const query = document.getElementById("query");
 const input_symbol_container = document.querySelector("#input-symbol-container");
 const search_symbol = document.querySelector("#search-symbol");
 const close_symbol = document.querySelector("#close-symbol");
+const loading = document.getElementById("loading");
+const errorDisplay = document.getElementById("error");  
+const animeListCount = document.getElementById("animeListCount");
 let search_result = document.getElementById("search-result");
+let currentScreenshotButtonStatus = "screenshot";
 let sfw = 1;
 
 // Disables autocomplete on query input tag for Windows and Linux (Desktop)
 (/Windows/i.test(navigator.userAgent) || (/Linux/i.test(navigator.userAgent) && !/Android/i.test(navigator.userAgent))) ? query.setAttribute('autocomplete', 'off') : null;
+
+
+// Toggles between watch order and screenshot button
+function screenshot_Button_Toggle(callingButton, otherButton) {
+  callingButton.style.display = "none";  
+  otherButton.style.display = "block";
+  (currentScreenshotButtonStatus == "screenshot") ? currentScreenshotButtonStatus = "watch-order" : currentScreenshotButtonStatus = "screenshot";
+}
 
 
 // Restarts the fetch when online, if the device was offline during fetch 
@@ -147,7 +159,11 @@ function loadingAnimation(loading) {
 
 
 // Takes screenshot of Anime Card and save it with the Anime name as a PNG image file
-function takeScreenshot(wrapper, imgContainer, img) { 
+function takeScreenshot(wrapper, imgContainer, img, currentScreenshotButtonStatus) { 
+  if(currentScreenshotButtonStatus != "screenshot") {
+    return;
+  }
+
   const animeTitle = (wrapper.querySelector('h4').innerText)
   .replace(/[\/\\:*?"<>|]/g, '') // Replaces illegal file name characters
   .normalize("NFD") // Normalizes the string to decompose diacritical marks
@@ -205,21 +221,16 @@ function takeScreenshot(wrapper, imgContainer, img) {
 
 // Fetches the anime data using Jikan API
 let currentController = null;
-async function getAnimeList(endPoint) {  
+async function getAnimeList(endPoint) {    
   if (currentController) {
     currentController.abort();    
   }
   currentController = new AbortController();
   const signal = currentController.signal;
 
-  const jikanAPI_URL = 'https://api.jikan.moe/v4';
-  search_result.innerHTML = `<span id="loading"></span> 
-                             <span id="error"></span>
-                             <span id="animeListCount"></span>`;
-  const loading = document.getElementById("loading");
-  const errorDisplay = document.getElementById("error");  
-  const animeListCount = document.getElementById("animeListCount");
+  const jikanAPI_URL = 'https://api.jikan.moe/v4';  
   const animeSearch = `${jikanAPI_URL}/anime?q=${encodeURIComponent(query.value.trim())}&sfw=${sfw}`;
+  search_result.innerHTML = "";
   let url;
   
   (query.value.trim() == "") ? endPoint = 'topAnime' : null;
@@ -231,17 +242,19 @@ async function getAnimeList(endPoint) {
       url = animeSearch;
   }
 
-  try {
+  try {    
+    animeListCount.innerText = "";     
     errorDisplay.style.display = "none";
     loading.style.display = "block";
     loadingAnimation(loading);
 
-    const response = await fetch(url, {signal});
+    const response = await fetch(url, {signal});    
     const data = await response.json();
     const dataLength = data.pagination.items.count;    
     loading.style.display = "none";    
 
-    if(dataLength > 0) {      
+    if(dataLength > 0) {          
+      errorDisplay.style.display = "none";  
       animeListCount.innerText = `Showing ${dataLength} results: `;
       for(let i = 0; i < dataLength; i++) {
         const animeData = data.data[i];      
@@ -250,7 +263,7 @@ async function getAnimeList(endPoint) {
         const animeTitle = animeData.title_english || animeData.title;                        
 
         search_result.innerHTML += `
-          <div id="${i}" class="card-wrapper" onclick="takeScreenshot(this, this.querySelector('.image-container') ,this.querySelector('img'))" tabindex="0">
+          <div id="${i}" class="card-wrapper" onclick="takeScreenshot(this, this.querySelector('.image-container') ,this.querySelector('img'), currentScreenshotButtonStatus)" tabindex="0">
             <div class="image-container">
               <span class="restricted-18">18+</span>
               <img src="${animeImageURL}" alt="Anime Poster">
@@ -272,13 +285,13 @@ async function getAnimeList(endPoint) {
         }
       }
     } else {
-      animeListCount.innerText = "Showing 0 results: ";
+      animeListCount.innerText = "Showing 0 results: ";      
     }
   } catch(error) {    
+    animeListCount.innerText = "";    
     loading.style.display = "none";
     errorDisplay.style.display = "block";
-    errorDisplay.innerHTML = `${error.message}!`;
-    console.log(error.message);
+    errorDisplay.innerHTML = `${error.message}!`;    
   } 
 }
 
