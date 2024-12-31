@@ -69,6 +69,7 @@ main {
 }
 
 main h1 {
+  margin-top: 5px;
   margin-bottom: 5px;
   font-family: "Metal Mania", system-ui;
 }
@@ -104,11 +105,10 @@ main h1 {
   }
 }
 
-#input-symbol {  
-  background-color: white;    
-  color: #006381;  
+#input-symbol-container {  
+  background-color: white;      
   margin-left: -1px; 
-  padding: 9px;
+  padding: 9px 9px 0px 9px;
   cursor: pointer;
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px; 
@@ -118,7 +118,7 @@ main h1 {
   background-color: #253947;
 }
 
-#search-div:focus-within #input-symbol {
+#search-div:focus-within #input-symbol-container {
   background-color: #253947;
   color: rgb(137, 245, 242);
   transition: all 0.15s ease-in-out;
@@ -129,20 +129,43 @@ main h1 {
   flex-grow: 1;
 }
 
+#search-div-container {
+  display: flex;
+}
+
+#filter-button {  
+  width: 40px;    
+  margin-right: 10px;  
+  border-radius: 5px;  
+  background-color: #69ff32;
+  font-weight: bold;
+  font-size: large;
+  border: none;
+  transition: all 0.15s ease-in-out;
+  cursor: pointer;  
+}
+
+#filter-svg {
+  fill: #006381;
+  padding-top: 5px;
+}
+
+#close-symbol {
+  display: none;
+}
+
 #search-result {  
   color: #9ced83;
 }
 
 #loading {
-  display: flex;
   margin-top: 25px;
   font-size: larger;
   color: #00ff2a;
   display: none;
 }
 
-#error {
-  display: flex;
+#error {  
   margin-top: 25px;
   font-size: larger;
   color: #ff0000;
@@ -150,7 +173,7 @@ main h1 {
 }
 
 #animeListCount {
-  display: flex;  
+  display: block;  
   margin-top: 25px;
   font-size: larger;
   color: rgb(255, 178, 55);  

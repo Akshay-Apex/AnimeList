@@ -1,7 +1,7 @@
 const query = document.getElementById("query");
-const input_symbol = document.querySelector("#input-symbol");
-const searchFontLink = document.querySelector("#searchFont");
-const clearFontLink = document.querySelector("#clearFont");
+const input_symbol_container = document.querySelector("#input-symbol-container");
+const search_symbol = document.querySelector("#search-symbol");
+const close_symbol = document.querySelector("#close-symbol");
 let search_result = document.getElementById("search-result");
 let sfw = 1;
 
@@ -40,33 +40,30 @@ query.addEventListener("input", () => {
 
   // Changes the symbol next to query input tag, based on if input value is empty or not
   if(symbolState == "clear" && query.value.trim() == '') {
-    input_symbol.style.transition = "all 0s ease-in-out";
-    input_symbol.style.color = "rgba(0, 0, 0, 0)";    
+    input_symbol_container.style.transition = "all 0s ease-in-out";  
+    close_symbol.style.display = "none";  
+    search_symbol.style.display = "block";
+    search_symbol.style.fill = "rgba(0, 0, 0, 0)";        
 
-    clearFontLink.disabled= true;
-    searchFontLink.disabled= false;
-    input_symbol.innerText = "search";
-    input_symbol.onclick = () => { getAnimeList('default') };
+    input_symbol_container.onclick = () => { getAnimeList('default') };
     symbolState = "search";        
         
-    setTimeout(() => {
-      input_symbol.style.color = "rgb(137, 245, 242)";    
-      input_symbol.style.transition = "all 0.15s ease-in-out";  
+    setTimeout(() => {        
+      search_symbol.style.fill = "rgb(137, 245, 242)";    
+      input_symbol_container.style.transition = "all 0.15s ease-in-out";  
     }, 100);    
 
   } else if(symbolState == "search" && query.value.trim() != '') {
-    input_symbol.style.transition = "all 0s ease-in-out";
-    input_symbol.style.color = "rgba(0, 0, 0, 0)";
-    
-    searchFontLink.disabled= true;
-    clearFontLink.disabled= false;
-    input_symbol.innerText = "close";    
-    input_symbol.onclick = clearInput;
+    input_symbol_container.style.transition = "all 0s ease-in-out";    
+    search_symbol.style.display = "none";      
+    close_symbol.style.display = "block";  
+    close_symbol.style.fill = "rgba(0, 0, 0, 0)";
+    input_symbol_container.onclick = clearInput;
     symbolState = "clear";
         
-    setTimeout(() => {
-      input_symbol.style.color = "rgb(137, 245, 242)";   
-      input_symbol.style.transition = "all 0.15s ease-in-out";   
+    setTimeout(() => {      
+      close_symbol.style.fill = "rgb(137, 245, 242)";  
+      input_symbol_container.style.transition = "all 0.15s ease-in-out";   
     }, 100);    
   }
 });
@@ -76,6 +73,7 @@ query.addEventListener("input", () => {
 query.addEventListener("keydown", (event) => {
   if(event.key == "Enter") {  
     clearTimeout(typingTimeout);
+    query.blur();
     getAnimeList('default');      
   }
 });
@@ -89,25 +87,27 @@ function clearInput() {
   query.dispatchEvent(event); 
 
   query.style.backgroundColor = "#006381";
-  input_symbol.style.backgroundColor = "#006381";
+  input_symbol_container.style.backgroundColor = "#006381";
   setTimeout(() => {
     query.style.backgroundColor = "#253947";
-    input_symbol.style.backgroundColor = "#253947";
+    input_symbol_container.style.backgroundColor = "#253947";
   }, 500);
 }
 
 // Changes colors of input on blur
 query.addEventListener("blur", () => {
   query.style.backgroundColor = "white";  
-  input_symbol.style.backgroundColor = "white";  
-  input_symbol.style.color = "#006381";   
+  input_symbol_container.style.backgroundColor = "white";    
+  close_symbol.style.fill = "#006381"; 
+  search_symbol.style.fill = "#006381"; 
 });
 
 // Changes colors of input on focus
 query.addEventListener("focus", () => {
   query.style.backgroundColor = "#253947";  
-  input_symbol.style.backgroundColor = "#253947";  
-  input_symbol.style.color = "rgb(137, 245, 242)";  
+  input_symbol_container.style.backgroundColor = "#253947";    
+  close_symbol.style.fill = "rgb(137, 245, 242)";
+  search_symbol.style.fill = "rgb(137, 245, 242)";
 });
 
 
@@ -130,23 +130,19 @@ function toggleButton() {
 
 
 // Loading Animation
-function loadingAnimation(loading) {
-  const computedStyle = window.getComputedStyle(loading);
-  if(computedStyle.display === "block") {   
-    setTimeout(() => { 
-      loading.innerText = "Loading";
-      setTimeout(() => {
-        loading.innerText = "Loading.";
-        setTimeout(() => {
-          loading.innerText = "Loading..";
-          setTimeout(() => {
-            loading.innerText = "Loading...";
-            loadingAnimation(loading);
-          }, 250)
-        }, 250)
-      }, 250);    
-    }, 250);    
-  } 
+function loadingAnimation(loading) {  
+  const texts = ["Loading", "Loading.", "Loading..", "Loading..."];
+  let index = 0;
+
+  function animate() {
+    if (getComputedStyle(loading).display === "block") {
+      loading.innerText = texts[index];
+      index = (index + 1) % texts.length; 
+      setTimeout(animate, 250); 
+    }
+  }
+
+  animate(); 
 }
 
 
@@ -208,14 +204,21 @@ function takeScreenshot(wrapper, imgContainer, img) {
 
 
 // Fetches the anime data using Jikan API
+let currentController = null;
 async function getAnimeList(endPoint) {  
+  if (currentController) {
+    currentController.abort();    
+  }
+  currentController = new AbortController();
+  const signal = currentController.signal;
+
   const jikanAPI_URL = 'https://api.jikan.moe/v4';
   search_result.innerHTML = `<span id="loading"></span> 
                              <span id="error"></span>
                              <span id="animeListCount"></span>`;
-  const animeListCount = document.getElementById("animeListCount");
   const loading = document.getElementById("loading");
   const errorDisplay = document.getElementById("error");  
+  const animeListCount = document.getElementById("animeListCount");
   const animeSearch = `${jikanAPI_URL}/anime?q=${encodeURIComponent(query.value.trim())}&sfw=${sfw}`;
   let url;
   
@@ -233,7 +236,7 @@ async function getAnimeList(endPoint) {
     loading.style.display = "block";
     loadingAnimation(loading);
 
-    const response = await fetch(url);
+    const response = await fetch(url, {signal});
     const data = await response.json();
     const dataLength = data.pagination.items.count;    
     loading.style.display = "none";    

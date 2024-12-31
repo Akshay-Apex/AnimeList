@@ -14,10 +14,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Barriecito&family=Fontdiner+Swanky&family=Frijole&family=Kalam:wght@300;400;700&family=Metal+Mania&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Rubik+Burned&family=Rye&display=swap" rel="stylesheet">
   <!-- Footer Tag Font -->
   <link href="https://fonts.googleapis.com/css2?family=Barriecito&family=Charm:wght@400;700&family=Fontdiner+Swanky&family=Frijole&family=Kalam:wght@300;400;700&family=Metal+Mania&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Rubik+Burned&family=Rye&display=swap" rel="stylesheet">
-  <!-- Close Symbol Font (Dynamically Enabled From JS) -->
-  <link id="clearFont" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=close" />
-  <!-- Search Symbol Font (Dynamically Enabled From JS) -->
-  <link id="searchFont" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=search" />
 
   <title>AnimeList</title>
   <link rel="icon" href="AnimeList_Logo.png" type="image/x-icon">
@@ -36,9 +32,26 @@
 
   <main>
     <h1>Search Anime</h1>    
-    <div id="search-div">
-      <input type="text" id="query" placeholder="Enter anime name..." autocorrect="off" spellcheck="false">      
-      <span id="input-symbol" onclick="getAnimeList('default')" class="material-symbols-outlined">search</span>            
+    <div id="search-div-container">
+      <button id="filter-button" onclick="alert('Currently not available')">
+        <svg id="filter-svg" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="white">
+          <path d="M440-160q-17 0-28.5-11.5T400-200v-240L168-736q-15-20-4.5-42t36.5-22h560q26 0 36.5 22t-4.5 42L560-440v240q0 17-11.5 28.5T520-160h-80Zm40-308 198-252H282l198 252Zm0 0Z"/>
+        </svg>
+      </button>
+
+      <div id="search-div">
+        <input type="text" id="query" placeholder="Enter anime name..." autocorrect="off" spellcheck="false">      
+
+        <span id="input-symbol-container" onclick="getAnimeList('default')">
+          <svg id="search-symbol" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#006381">
+            <path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/>
+          </svg>
+
+          <svg id="close-symbol" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed">
+            <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+          </svg>
+        </span>            
+      </div>
     </div>    
 
     <div id="search-result"></div>
