@@ -184,7 +184,7 @@ main h1 {
 }
 
 #screenshot-button {
-  display: block;
+  display: none;
   border-radius: 5px;
   fill: #00ff2a;
   border: 1px dotted #00ff2a;

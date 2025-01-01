@@ -6,18 +6,29 @@ const loading = document.getElementById("loading");
 const errorDisplay = document.getElementById("error");  
 const animeListCount = document.getElementById("animeListCount");
 let search_result = document.getElementById("search-result");
-let currentScreenshotButtonStatus = "screenshot";
 let sfw = 1;
 
 // Disables autocomplete on query input tag for Windows and Linux (Desktop)
 (/Windows/i.test(navigator.userAgent) || (/Linux/i.test(navigator.userAgent) && !/Android/i.test(navigator.userAgent))) ? query.setAttribute('autocomplete', 'off') : null;
 
 
+// Loads the appropriate button based on session data, if null then watch-order gets loaded as default
+window.addEventListener("load", () => {
+  if(sessionStorage.getItem("currentScreenshotButtonStatus") == "screenshot") {
+    document.querySelector("#screenshot-button").style.display = "block";
+  } else if (sessionStorage.getItem("currentScreenshotButtonStatus") == "watch-order") {
+    document.querySelector("#watch-order-button").style.display = "block";    
+  } else {
+    sessionStorage.setItem("currentScreenshotButtonStatus", "watch-order");
+    document.querySelector("#watch-order-button").style.display = "block";   
+  }
+});  
+
 // Toggles between watch order and screenshot button
 function screenshot_Button_Toggle(callingButton, otherButton) {
   callingButton.style.display = "none";  
   otherButton.style.display = "block";
-  (currentScreenshotButtonStatus == "screenshot") ? currentScreenshotButtonStatus = "watch-order" : currentScreenshotButtonStatus = "screenshot";
+  (sessionStorage.getItem("currentScreenshotButtonStatus") == "screenshot") ? sessionStorage.setItem("currentScreenshotButtonStatus", "watch-order") : sessionStorage.setItem("currentScreenshotButtonStatus", "screenshot");
 }
 
 
@@ -159,8 +170,8 @@ function loadingAnimation(loading) {
 
 
 // Takes screenshot of Anime Card and save it with the Anime name as a PNG image file
-function takeScreenshot(wrapper, imgContainer, img, currentScreenshotButtonStatus) { 
-  if(currentScreenshotButtonStatus != "screenshot") {
+function takeScreenshot(wrapper, imgContainer, img) { 
+  if(sessionStorage.getItem("currentScreenshotButtonStatus") != "screenshot") {
     return;
   }
 
@@ -263,7 +274,7 @@ async function getAnimeList(endPoint) {
         const animeTitle = animeData.title_english || animeData.title;                        
 
         search_result.innerHTML += `
-          <div id="${i}" class="card-wrapper" onclick="takeScreenshot(this, this.querySelector('.image-container') ,this.querySelector('img'), currentScreenshotButtonStatus)" tabindex="0">
+          <div id="${i}" class="card-wrapper" onclick="takeScreenshot(this, this.querySelector('.image-container') ,this.querySelector('img'))" tabindex="0">
             <div class="image-container">
               <span class="restricted-18">18+</span>
               <img src="${animeImageURL}" alt="Anime Poster">
