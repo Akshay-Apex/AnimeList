@@ -1,3 +1,4 @@
+const jikanAPI_URL = 'https://api.jikan.moe/v4';  
 const query = document.getElementById("query");
 const input_symbol_container = document.querySelector("#input-symbol-container");
 const search_symbol = document.querySelector("#search-symbol");
@@ -5,7 +6,9 @@ const close_symbol = document.querySelector("#close-symbol");
 const loading = document.getElementById("loading");
 const errorDisplay = document.getElementById("error");  
 const animeListCount = document.getElementById("animeListCount");
+const filter_button = document.querySelector("#filter-button");
 let search_result = document.getElementById("search-result");
+let fetchAbortController = null;
 let sfw = 1;
 
 // Disables autocomplete on query input tag for Windows and Linux (Desktop)
@@ -41,7 +44,7 @@ function refresh_Search_When_Online() {
   } 
   
   if(wasOffline) {
-    getAnimeList('default');
+    displayAnimeList('getQueryAnimeList');
     wasOffline = false;
   }
 }
@@ -57,7 +60,7 @@ query.addEventListener("input", () => {
   typingTimeout = setTimeout(() => {  
     if(prevQueryString != query.value.trim() && query.value.trim() != '') {
       prevQueryString = query.value.trim();
-      getAnimeList('default');  
+      displayAnimeList('getQueryAnimeList');  
     }
   }, 1000);
 
@@ -68,7 +71,7 @@ query.addEventListener("input", () => {
     search_symbol.style.display = "block";
     search_symbol.style.fill = "rgba(0, 0, 0, 0)";        
 
-    input_symbol_container.onclick = () => { getAnimeList('default') };
+    input_symbol_container.onclick = () => { displayAnimeList('getQueryAnimeList') };
     symbolState = "search";        
         
     setTimeout(() => {        
@@ -97,7 +100,7 @@ query.addEventListener("keydown", (event) => {
   if(event.key == "Enter") {  
     clearTimeout(typingTimeout);
     query.blur();
-    getAnimeList('default');      
+    displayAnimeList('getQueryAnimeList');      
   }
 });
 
@@ -148,12 +151,12 @@ function toggleButton() {
     sfw_button.classList.remove("nsfw");
     sfw_button.classList.add("sfw");
   }
-  getAnimeList('default');
+  displayAnimeList('getQueryAnimeList');
 }
 
 
 // Loading Animation
-function loadingAnimation(loading) {  
+function loadingAnimation() {  
   const texts = ["Loading", "Loading.", "Loading..", "Loading..."];
   let index = 0;
 
@@ -230,45 +233,194 @@ function takeScreenshot(wrapper, imgContainer, img) {
 }
 
 
-// Fetches the anime data using Jikan API
-let currentController = null;
-async function getAnimeList(endPoint) {    
-  if (currentController) {
-    currentController.abort();    
+let filter_enable_status = true;
+function showFilterOptions() {
+  if(filter_enable_status == true) {
+    document.querySelector("#filter-container").style.display = "block";
+    filter_button.style.backgroundColor = "#ffaa00";      
+    fetchAndDisplayGenreButtons();
+    filter_enable_status = false;
+  } else {
+    document.querySelector("#filter-container").style.display = "none";
+    filter_button.style.backgroundColor = "#00eeff";  
+    filter_enable_status = true;
   }
-  currentController = new AbortController();
-  const signal = currentController.signal;
+}
 
-  const jikanAPI_URL = 'https://api.jikan.moe/v4';  
-  const animeSearch = `${jikanAPI_URL}/anime?q=${encodeURIComponent(query.value.trim())}&sfw=${sfw}`;
-  search_result.innerHTML = "";
-  let url;
+
+function populateYearDropdown(yearSelect) {    
+  if(yearSelect.querySelectorAll('option').length > 1) {
+    return;
+  }
+
+  const currentYear = new Date().getFullYear();      
+  for (let year = currentYear; year >= 1907; year--) {
+    const option = document.createElement('option');
+    option.value = year;     
+    option.textContent = year;
+    yearSelect.appendChild(option);
+  }
+}
+
+
+function populateMonthDropdown(monthSelect) {   
+  if(monthSelect.querySelectorAll('option').length > 1) {
+    return;
+  }
+
+  for (let month = 1; month <= 12; month++) {
+    const option = document.createElement('option');
+    option.value = month;     
+    option.textContent = month;
+    monthSelect.appendChild(option);
+  }
+}
+
+
+function populateDayDropdown(daySelect) {
+  if(daySelect.querySelectorAll('option').length > 1) {
+    return;
+  }
+
+  for (let day = 1; day <= 31; day++) {
+    const option = document.createElement('option');
+    option.value = day;     
+    option.textContent = day;
+    daySelect.appendChild(option);
+  }
+}
+
+
+function changeGenreButtonColor(genreButton) {  
+  genreButton.style.color = "orange";
+  genreButton.style.border = "1px solid orange";  
+}
+
+
+async function fetchAndDisplayGenreButtons() {
+  const genre_buttons_container = document.querySelector("#genre-buttons-container");  
+  if(genre_buttons_container.querySelectorAll('button').length != 0) {
+    return;
+  }
+
+  if (fetchAbortController) {
+    fetchAbortController.abort();    
+  }
+  fetchAbortController = new AbortController();
+  const signal = fetchAbortController.signal;
+
+  let url = `${jikanAPI_URL}/genres/anime`;  
   
-  (query.value.trim() == "") ? endPoint = 'topAnime' : null;
-  switch(endPoint) {
-    case 'topAnime': 
-      url = `${jikanAPI_URL}/top/anime?sfw=${sfw}`; 
-      break;
-    default: 
-      url = animeSearch;
-  }
-
-  try {    
-    animeListCount.innerText = "";     
-    errorDisplay.style.display = "none";
-    loading.style.display = "block";
-    loadingAnimation(loading);
-
+  try {
     const response = await fetch(url, {signal});    
     const data = await response.json();
-    const dataLength = data.pagination.items.count;    
-    loading.style.display = "none";    
+
+    data.data.forEach(genre => {
+      const button = document.createElement('button');
+      button.className = 'genre-button';
+      button.textContent = genre.name;
+      button.value = genre.mal_id;   
+      button.onclick = function() {
+        changeGenreButtonColor(this);
+      };
+      genre_buttons_container.appendChild(button);
+    });
+  } catch(error) {
+    console.log("Error fetching genres");
+  }
+}
+
+
+function showError(error) {
+  animeListCount.innerText = "";    
+  loading.style.display = "none";
+  errorDisplay.style.display = "block";
+  errorDisplay.innerHTML = `${error.message}!`;  
+}
+
+
+function showLoading(enable_boolean) {
+  animeListCount.innerText = "";     
+  errorDisplay.style.display = "none";  
+
+  if(enable_boolean == false) {
+    loading.style.display = "none";
+  } else {
+    loading.style.display = "block";
+    loadingAnimation();
+  }
+}
+
+
+function showAnimeListCount(dataLength) {
+  loading.style.display = "none"; 
+  errorDisplay.style.display = "none"; 
+  animeListCount.innerText = `Showing ${dataLength} results: `;
+}
+
+
+function clearSearchResults() {
+  search_result.innerHTML = "";
+}
+
+
+async function getQueryAnimeList() {
+  if (fetchAbortController) {
+    fetchAbortController.abort();    
+  }
+  fetchAbortController = new AbortController();
+  const signal = fetchAbortController.signal;
+
+  search_result.innerHTML = "";
+  let url = `${jikanAPI_URL}/anime?q=${encodeURIComponent(query.value.trim())}&sfw=${sfw}`;
+
+  const response = await fetch(url, {signal});    
+  const data = await response.json();
+  return data;
+}
+
+
+async function getTopAnimeList() {
+  if (fetchAbortController) {
+    fetchAbortController.abort();    
+  }
+  fetchAbortController = new AbortController();
+  const signal = fetchAbortController.signal;
+
+  search_result.innerHTML = "";
+  let url = `${jikanAPI_URL}/top/anime?sfw=${sfw}`;
+  
+  const response = await fetch(url, {signal});    
+  const data = await response.json();
+  return data;
+}
+
+
+async function displayAnimeList(fetch_option) {
+  try {    
+    let fetched_data = null;
+    showLoading(true);
+    clearSearchResults();
+   
+    switch(fetch_option) {
+      case 'getTopAnimeList':
+        fetched_data = await getTopAnimeList();
+        break;
+      case 'getQueryAnimeList':
+        (query.value.trim() == "") ? fetched_data = await getTopAnimeList() : fetched_data = await getQueryAnimeList();
+        break;        
+      case 'getAnimeByGenres':
+        fetched_data = await getAnimeByGenres();
+        break;
+    }
+
+    showLoading(false);
+    const dataLength = fetched_data.data.length;      
+    showAnimeListCount(dataLength);
 
     if(dataLength > 0) {          
-      errorDisplay.style.display = "none";  
-      animeListCount.innerText = `Showing ${dataLength} results: `;
       for(let i = 0; i < dataLength; i++) {
-        const animeData = data.data[i];      
+        const animeData = fetched_data.data[i];      
         const genresList = animeData.genres.map(genre => genre.name).join(' / ');   
         const animeImageURL = animeData.images.jpg.large_image_url;   
         const animeTitle = animeData.title_english || animeData.title;                        
@@ -288,22 +440,16 @@ async function getAnimeList(endPoint) {
                 <h5><b>Score:</b> <span class="sub-data">${animeData.score} - <span class="scored-by">[ by ${Number(animeData.scored_by).toLocaleString()} people ]</span></span></h5>          
             </div>
           </div>          
-        `;      
-        
+        `;              
         
         if(animeData.rating == "R+ - Mild Nudity" || animeData.rating == "Rx - Hentai") {
           document.getElementsByClassName("restricted-18")[i].style.display = "block";
         }
       }
-    } else {
-      animeListCount.innerText = "Showing 0 results: ";      
-    }
+    } 
   } catch(error) {    
-    animeListCount.innerText = "";    
-    loading.style.display = "none";
-    errorDisplay.style.display = "block";
-    errorDisplay.innerHTML = `${error.message}!`;    
+    showError(error);
   } 
 }
 
-getAnimeList('topAnime');
+displayAnimeList('getTopAnimeList');

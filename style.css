@@ -136,12 +136,13 @@ main h1 {
 #filter-button {  
   width: 40px;    
   margin-right: 10px;  
-  border-radius: 5px;  
+  border-radius: 5px;    
   background-color: #00eeff;
   font-weight: bold;
   font-size: large;
   border: none;  
-  cursor: pointer;  
+  cursor: pointer; 
+  transition: all 0.15s ease-in-out; 
 }
 
 #filter-svg {
@@ -151,6 +152,49 @@ main h1 {
 
 #close-symbol {
   display: none;
+}
+
+#filter-container {
+  display: none;
+  background-color: #2b2d42;
+  border-radius: 5px;
+  padding: 20px;  
+  border: 1px dotted rgb(137, 245, 242);  
+  margin-top: 20px;  
+  color: #00eeff;    
+}
+
+#filter-container h2 {
+  margin: 0px 0px 10px 0px;
+}
+
+#filter-container hr {
+  margin-bottom: 20px;
+}
+
+#filter-container label {
+  color: #ebc034;
+  font-weight: bold;
+}
+
+.no-arrow {
+  appearance: none;
+  padding: 5px 8px;  
+  margin-bottom: 20px;
+  border-radius: 5px;  
+  outline: none;    
+  background-color: #13171d; 
+  border: 1px solid #00eeff;  
+  color: #03ffdd;
+}
+
+#genre-buttons-container button {
+  margin: 0px 8px 8px 0px;  
+  border-radius: 5px;
+  padding: 5px 8px;  
+  background-color: #13171d; 
+  border: 1px solid #00eeff;  
+  color: #03ffdd;
 }
 
 #search-result {  

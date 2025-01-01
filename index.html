@@ -33,7 +33,7 @@
   <main>
     <h1>Search Anime</h1>    
     <div id="search-div-container">
-      <button id="filter-button" onclick="alert('The filter option is currently unavailable.')">
+      <button id="filter-button" onclick="showFilterOptions()">
         <svg id="filter-svg" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="white">
           <path d="M440-160q-17 0-28.5-11.5T400-200v-240L168-736q-15-20-4.5-42t36.5-22h560q26 0 36.5 22t-4.5 42L560-440v240q0 17-11.5 28.5T520-160h-80Zm40-308 198-252H282l198 252Zm0 0Z"/>
         </svg>
@@ -42,7 +42,7 @@
       <div id="search-div">
         <input type="text" id="query" placeholder="Enter anime name..." autocorrect="off" spellcheck="false">      
 
-        <span id="input-symbol-container" onclick="getAnimeList('default')">
+        <span id="input-symbol-container" onclick="displayAnimeList('getQueryAnimeList')">
           <svg id="search-symbol" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#006381">
             <path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/>
           </svg>
@@ -53,6 +53,95 @@
         </span>            
       </div>
     </div>    
+
+    <div id="filter-container">
+      <h2>Filters</h2>
+      <hr>
+      <section>        
+        <label>Type</label>
+        <select id="type" class="no-arrow">
+          <option value="">All</option>
+          <option value="movie">Movie</option>
+          <option value="tv">TV</option>
+          <option value="ova">OVA</option>
+          <option value="ona">ONA</option>
+          <option value="special">Special</option>
+          <option value="music">Music</option>          
+        </select>        
+        <br>        
+
+        <label>Status</label>
+        <select id="status" class="no-arrow">
+          <option value="">All</option>
+          <option value="complete">Completed</option>
+          <option value="airing">Airing</option>
+          <option value="upcoming">Upcomming</option>
+        </select>
+        <br>
+
+        <label>Score</label>
+        <select id="score" class="no-arrow">
+          <option value="">All</option>
+          <option value="1">(1) Appalling</option>
+          <option value="2">(2) Horrible</option>
+          <option value="3">(3) Very Bad</option>
+          <option value="4">(4) Bad</option>
+          <option value="5">(5) Average</option>
+          <option value="6">(6) Fine</option>
+          <option value="7">(7) Good</option>
+          <option value="8">(8) Very Good</option>
+          <option value="9">(9) Great</option>
+          <option value="10">(10) Masterpiece</option>
+        </select>
+        <br>
+
+        <label>Rating</label>
+        <select id="rating" class="no-arrow">
+          <option value="">All</option>
+          <option value="g">G - All Ages</option>
+          <option value="pg">PG - Children</option>
+          <option value="pg13">PG-13 - Teens 13 or older</option>
+          <option value="r17">R - 17+ (violence & profanity)</option>
+          <option value="r">R+ - Mild Nudity</option>
+          <option value="rx">Rx - Hentai</option>
+        </select>
+        <br>
+        
+        <label>Start Date</label>
+        <select id="start-year" onclick="populateYearDropdown(this)" class="no-arrow">
+          <option value="">Year</option>
+        </select>
+
+        <select id="start-month" onclick="populateMonthDropdown(this)" class="no-arrow">
+          <option value="">Month</option>
+        </select>
+
+        <select id="start-day" onclick="populateDayDropdown(this)" class="no-arrow">
+          <option value="">Day</option>
+        </select>
+        <br>
+
+        <label>End Date</label>        
+        <select id="end-year" onclick="populateYearDropdown(this)" class="no-arrow">
+          <option value="">Year</option>
+        </select>
+
+        <select id="end-month" onclick="populateMonthDropdown(this)" class="no-arrow">
+          <option value="">Month</option>
+        </select>
+
+        <select id="end-day" onclick="populateDayDropdown(this)" class="no-arrow">
+          <option value="">Day</option>
+        </select>  
+        <br><br>
+      </section>      
+
+      <section>
+        <h2>Genres</h2>
+        <hr>
+        <div id="genre-buttons-container"></div>
+      </section>
+    </div>
 
     <div id="result-status-container">
       <span id="loading"></span> 
