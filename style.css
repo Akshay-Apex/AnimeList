@@ -146,7 +146,7 @@ main h1 {
 }
 
 #filter-svg {
-  fill: #006381;
+  fill: #253947;
   padding-top: 5px;
 }
 
@@ -155,8 +155,8 @@ main h1 {
 }
 
 #filter-container {
-  display: none;
-  background-color: #2b2d42;
+  display: none;    
+  background-color: #13171d;    
   border-radius: 5px;
   padding: 20px;  
   border: 1px dotted rgb(137, 245, 242);  
@@ -172,8 +172,8 @@ main h1 {
   margin-bottom: 20px;
 }
 
-#filter-container label {
-  color: #ebc034;
+#filter-container label {  
+  color: rgb(255, 178, 55);  
   font-weight: bold;
 }
 
@@ -188,13 +188,56 @@ main h1 {
   color: #03ffdd;
 }
 
+.center-selectTag-text {
+  text-align: center;
+}
+
 #genre-buttons-container button {
   margin: 0px 8px 8px 0px;  
   border-radius: 5px;
   padding: 5px 8px;  
-  background-color: #13171d; 
+  background-color: #13171d;     
   border: 1px solid #00eeff;  
   color: #03ffdd;
+}
+
+#filter-apply-button {
+  margin-top: 10px;
+  width: 80px;
+  height: 40px;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: large;
+  border: none;
+  transition: all 0.15s ease-in-out;
+  cursor: pointer;
+  background-color: #00eeff;
+  color: #253947;
+}
+
+#filter-clear-button {
+  margin-top: 10px;
+  width: 80px;
+  height: 40px;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: large;
+  border: none;
+  transition: all 0.15s ease-in-out;
+  cursor: pointer;
+  background-color: #ffa600;
+  color: #253947;
+}
+
+#filter-apply-button-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+#error-genre-display {
+  margin-top: 25px;
+  font-size: larger;
+  color: #ff0000;  
 }
 
 #search-result {  

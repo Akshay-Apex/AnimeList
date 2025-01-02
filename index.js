@@ -1,12 +1,38 @@
 const jikanAPI_URL = 'https://api.jikan.moe/v4';  
+
 const query = document.getElementById("query");
 const input_symbol_container = document.querySelector("#input-symbol-container");
+
 const search_symbol = document.querySelector("#search-symbol");
 const close_symbol = document.querySelector("#close-symbol");
+
 const loading = document.getElementById("loading");
 const errorDisplay = document.getElementById("error");  
 const animeListCount = document.getElementById("animeListCount");
+
 const filter_button = document.querySelector("#filter-button");
+const filter_apply_button = document.querySelector("#filter-apply-button");
+const filter_container = document.querySelector("#filter-container");
+const filter_container_selectTags = document.querySelectorAll("select");
+
+const type_select = document.querySelector("#type");
+const status_select = document.querySelector("#status");
+const score_select = document.querySelector("#score");
+const rating_select = document.querySelector("#rating");
+
+const start_year = document.querySelector("#start-year");
+const start_month = document.querySelector("#start-month");
+const start_day = document.querySelector("#start-day");
+
+const end_year = document.querySelector("#end-year");
+const end_month = document.querySelector("#end-month");
+const end_day = document.querySelector("#end-day");
+
+const genre_buttons_container = document.querySelector("#genre-buttons-container");  
+let allGenreButtons;
+let genresSelectedArray = [];
+const error_genre_display = document.querySelector("#error-genre-display");
+
 let search_result = document.getElementById("search-result");
 let fetchAbortController = null;
 let sfw = 1;
@@ -33,6 +59,13 @@ function screenshot_Button_Toggle(callingButton, otherButton) {
   otherButton.style.display = "block";
   (sessionStorage.getItem("currentScreenshotButtonStatus") == "screenshot") ? sessionStorage.setItem("currentScreenshotButtonStatus", "watch-order") : sessionStorage.setItem("currentScreenshotButtonStatus", "screenshot");
 }
+
+
+filter_container_selectTags.forEach(selectTag => {
+  selectTag.addEventListener('change', function() {
+    changeColorAfterSelection(this);
+  });
+});
 
 
 // Restarts the fetch when online, if the device was offline during fetch 
@@ -236,19 +269,57 @@ function takeScreenshot(wrapper, imgContainer, img) {
 let filter_enable_status = true;
 function showFilterOptions() {
   if(filter_enable_status == true) {
-    document.querySelector("#filter-container").style.display = "block";
-    filter_button.style.backgroundColor = "#ffaa00";      
+    filter_container.style.display = "block";        
+    filter_button.style.backgroundColor = "#ffa600";      
     fetchAndDisplayGenreButtons();
     filter_enable_status = false;
   } else {
-    document.querySelector("#filter-container").style.display = "none";
+    filter_container.style.display = "none";
     filter_button.style.backgroundColor = "#00eeff";  
     filter_enable_status = true;
   }
 }
 
 
-function populateYearDropdown(yearSelect) {    
+function clearFilterSelection() {
+  filter_container_selectTags.forEach(selectTag => {
+    selectTag.value = "";
+    changeColorAfterSelection(selectTag);
+  });
+
+  allGenreButtons.forEach(buttonTag => { 
+    genresSelectedArray.length = 0;   
+    changeGenreButtonColor(buttonTag, true);
+  });
+}
+
+
+function updateGenresSelectedArray(value) {
+  const index = genresSelectedArray.indexOf(value);
+
+  if (index === -1) {    
+    genresSelectedArray.push(value);
+  } else {    
+    genresSelectedArray.splice(index, 1);
+  }
+}
+
+
+function changeColorAfterSelection(selectTagObject) {
+  if(selectTagObject.value == "") {
+    selectTagObject.style.color = "#03ffdd";
+    selectTagObject.style.border = "1px solid #00eeff";  
+    selectTagObject.style.backgroundColor = "#13171d";
+    return;
+  }
+
+  selectTagObject.style.color = "orange";
+  selectTagObject.style.border = "1px solid orange";  
+  selectTagObject.style.backgroundColor = "#1d1713";
+}
+
+
+function populateYearDropdown(yearSelect) {     
   if(yearSelect.querySelectorAll('option').length > 1) {
     return;
   }
@@ -257,7 +328,7 @@ function populateYearDropdown(yearSelect) {
   for (let year = currentYear; year >= 1907; year--) {
     const option = document.createElement('option');
     option.value = year;     
-    option.textContent = year;
+    option.textContent = year;    
     yearSelect.appendChild(option);
   }
 }
@@ -291,42 +362,46 @@ function populateDayDropdown(daySelect) {
 }
 
 
-function changeGenreButtonColor(genreButton) {  
-  genreButton.style.color = "orange";
-  genreButton.style.border = "1px solid orange";  
+function changeGenreButtonColor(genreButton, changeToDefault = false) {  
+  if(genreButton.style.color == "orange" || changeToDefault) {
+    genreButton.style.color = "#03ffdd";
+    genreButton.style.border = "1px solid #00eeff";  
+    genreButton.style.backgroundColor = "#13171d";  
+  } else {
+    genreButton.style.color = "orange";
+    genreButton.style.border = "1px solid orange";  
+    genreButton.style.backgroundColor = "#1d1713";
+  }
 }
 
 
-async function fetchAndDisplayGenreButtons() {
-  const genre_buttons_container = document.querySelector("#genre-buttons-container");  
+async function fetchAndDisplayGenreButtons() {  
   if(genre_buttons_container.querySelectorAll('button').length != 0) {
     return;
   }
-
-  if (fetchAbortController) {
-    fetchAbortController.abort();    
-  }
-  fetchAbortController = new AbortController();
-  const signal = fetchAbortController.signal;
-
-  let url = `${jikanAPI_URL}/genres/anime`;  
   
+  error_genre_display.innerHTML = "";
+  let url = `${jikanAPI_URL}/genres/anime`;    
   try {
-    const response = await fetch(url, {signal});    
+    const response = await fetch(url);    
     const data = await response.json();
-
+    
     data.data.forEach(genre => {
       const button = document.createElement('button');
       button.className = 'genre-button';
       button.textContent = genre.name;
       button.value = genre.mal_id;   
-      button.onclick = function() {
+      button.addEventListener('click', function() {  
+        updateGenresSelectedArray(this.value);
         changeGenreButtonColor(this);
-      };
+      });
+
       genre_buttons_container.appendChild(button);
     });
-  } catch(error) {
-    console.log("Error fetching genres");
+
+    allGenreButtons = genre_buttons_container.querySelectorAll('button');
+  } catch(error) {        
+    error_genre_display.innerHTML = `${error.message} genres!`;
   }
 }
 
@@ -396,6 +471,11 @@ async function getTopAnimeList() {
 }
 
 
+async function getAnimeListByGenres() {
+ 
+}
+
+
 async function displayAnimeList(fetch_option) {
   try {    
     let fetched_data = null;
@@ -409,8 +489,8 @@ async function displayAnimeList(fetch_option) {
       case 'getQueryAnimeList':
         (query.value.trim() == "") ? fetched_data = await getTopAnimeList() : fetched_data = await getQueryAnimeList();
         break;        
-      case 'getAnimeByGenres':
-        fetched_data = await getAnimeByGenres();
+      case 'getAnimeListByGenres':
+        fetched_data = await getAnimeListByGenres();
         break;
     }
 

@@ -108,29 +108,29 @@
         <br>
         
         <label>Start Date</label>
-        <select id="start-year" onclick="populateYearDropdown(this)" class="no-arrow">
+        <select id="start-year" onclick="populateYearDropdown(this)" class="no-arrow center-selectTag-text">
           <option value="">Year</option>
         </select>
 
-        <select id="start-month" onclick="populateMonthDropdown(this)" class="no-arrow">
+        <select id="start-month" onclick="populateMonthDropdown(this)" class="no-arrow center-selectTag-text">
           <option value="">Month</option>
         </select>
 
-        <select id="start-day" onclick="populateDayDropdown(this)" class="no-arrow">
+        <select id="start-day" onclick="populateDayDropdown(this)" class="no-arrow center-selectTag-text">
           <option value="">Day</option>
         </select>
         <br>
 
         <label>End Date</label>        
-        <select id="end-year" onclick="populateYearDropdown(this)" class="no-arrow">
+        <select id="end-year" onclick="populateYearDropdown(this)" class="no-arrow center-selectTag-text">
           <option value="">Year</option>
         </select>
 
-        <select id="end-month" onclick="populateMonthDropdown(this)" class="no-arrow">
+        <select id="end-month" onclick="populateMonthDropdown(this)" class="no-arrow center-selectTag-text">
           <option value="">Month</option>
         </select>
 
-        <select id="end-day" onclick="populateDayDropdown(this)" class="no-arrow">
+        <select id="end-day" onclick="populateDayDropdown(this)" class="no-arrow center-selectTag-text">
           <option value="">Day</option>
         </select>  
         <br><br>
@@ -139,8 +139,15 @@
       <section>
         <h2>Genres</h2>
         <hr>
-        <div id="genre-buttons-container"></div>
-      </section>
+        <div id="genre-buttons-container">
+          <span id="error-genre-display"></span>
+        </div>
+      </section>      
+
+      <div id="filter-apply-button-container">
+        <button id="filter-apply-button" onclick="getAnimeListByGenres()">Filter</button>
+        <button id="filter-clear-button" onclick="clearFilterSelection()">Clear</button>
+      </div>
     </div>
 
     <div id="result-status-container">
