@@ -177,6 +177,18 @@ main h1 {
   font-weight: bold;
 }
 
+#filter-section {
+  height: 280px;
+}
+
+#genres-section {
+  margin-bottom: 8px;
+}
+
+hr {
+  margin: 0px 0px 20px!important;
+}
+
 .no-arrow {
   appearance: none;
   padding: 5px 8px;  
@@ -192,13 +204,36 @@ main h1 {
   text-align: center;
 }
 
-#genre-buttons-container button {
+select::-webkit-scrollbar {
+  color: transparent;
+  width: 10px;
+}
+
+#genre-buttons-container button {  
   margin: 0px 8px 8px 0px;  
   border-radius: 5px;
   padding: 5px 8px;  
   background-color: #13171d;     
   border: 1px solid #00eeff;  
   color: #03ffdd;
+}
+
+#genre-buttons-container {
+  max-height: 272px;
+  background-color: rgb(14, 37, 52);
+  border: 0.5px dotted rgb(137, 245, 242);  
+  border-radius: 5px;
+  padding: 10px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #03ffdd;
+    border-radius: 5px;
+  }
 }
 
 #filter-apply-button {
@@ -226,7 +261,7 @@ main h1 {
   transition: all 0.15s ease-in-out;
   cursor: pointer;
   background-color: #ffa600;
-  color: #253947;
+  color: #253947;  
 }
 
 #filter-apply-button-container {

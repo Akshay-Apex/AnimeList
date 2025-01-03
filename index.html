@@ -57,7 +57,7 @@
     <div id="filter-container">
       <h2>Filters</h2>
       <hr>
-      <section>        
+      <section id="filter-section">        
         <label>Type</label>
         <select id="type" class="no-arrow">
           <option value="">All</option>
@@ -112,11 +112,11 @@
           <option value="">Year</option>
         </select>
 
-        <select id="start-month" onclick="populateMonthDropdown(this)" class="no-arrow center-selectTag-text">
+        <select id="start-month" onclick="populateMonthDropdown(this)" class="no-arrow center-selectTag-text" disabled>
           <option value="">Month</option>
         </select>
 
-        <select id="start-day" onclick="populateDayDropdown(this)" class="no-arrow center-selectTag-text">
+        <select id="start-day" onclick="populateDayDropdown(this)" class="no-arrow center-selectTag-text" disabled>
           <option value="">Day</option>
         </select>
         <br>
@@ -126,17 +126,17 @@
           <option value="">Year</option>
         </select>
 
-        <select id="end-month" onclick="populateMonthDropdown(this)" class="no-arrow center-selectTag-text">
+        <select id="end-month" onclick="populateMonthDropdown(this)" class="no-arrow center-selectTag-text" disabled>
           <option value="">Month</option>
         </select>
 
-        <select id="end-day" onclick="populateDayDropdown(this)" class="no-arrow center-selectTag-text">
+        <select id="end-day" onclick="populateDayDropdown(this)" class="no-arrow center-selectTag-text" disabled>
           <option value="">Day</option>
         </select>  
         <br><br>
       </section>      
 
-      <section>
+      <section id="genres-section">
         <h2>Genres</h2>
         <hr>
         <div id="genre-buttons-container">
@@ -145,7 +145,7 @@
       </section>      
 
       <div id="filter-apply-button-container">
-        <button id="filter-apply-button" onclick="getAnimeListByGenres()">Filter</button>
+        <button id="filter-apply-button" onclick="displayAnimeList('getAnimeListByQueryWithFilter')">Filter</button>
         <button id="filter-clear-button" onclick="clearFilterSelection()">Clear</button>
       </div>
     </div>

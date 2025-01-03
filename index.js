@@ -10,6 +10,12 @@ const loading = document.getElementById("loading");
 const errorDisplay = document.getElementById("error");  
 const animeListCount = document.getElementById("animeListCount");
 
+let search_result = document.getElementById("search-result");
+let fetchAbortController = null;
+let sfw = 1;
+
+/*################### Filter Button Code ###################*/
+
 const filter_button = document.querySelector("#filter-button");
 const filter_apply_button = document.querySelector("#filter-apply-button");
 const filter_container = document.querySelector("#filter-container");
@@ -28,14 +34,326 @@ const end_year = document.querySelector("#end-year");
 const end_month = document.querySelector("#end-month");
 const end_day = document.querySelector("#end-day");
 
+let genresSelectedArray = [];
 const genre_buttons_container = document.querySelector("#genre-buttons-container");  
 let allGenreButtons;
-let genresSelectedArray = [];
 const error_genre_display = document.querySelector("#error-genre-display");
 
-let search_result = document.getElementById("search-result");
-let fetchAbortController = null;
-let sfw = 1;
+let filter_enable_status = false;
+
+// Clears Filter data on load with a 1500ms delay 
+window.addEventListener('load', function() {
+  setTimeout(clearFilterSelection, 1500);
+});
+
+
+function manageDateFilterPrecedence(selectTag) {   
+  // Corrects the start and end date precedence dynamically
+  if(start_year.value != "" && end_year.value != "") {
+    if(Number(start_year.value) > Number(end_year.value)) {      
+      end_year.value = start_year.value;
+    }
+  }
+
+  if(start_month.value != "" && end_month.value != "" && start_year.value == end_year.value) {
+    if(Number(start_month.value) > Number(end_month.value)) {      
+      end_month.value = start_month.value;
+    }
+  }
+
+  if(start_day.value != "" && end_day.value != "" && 
+    start_year.value == end_year.value && 
+    start_month.value == end_month.value) {
+    if(Number(start_day.value) > Number(end_day.value)) {      
+      end_day.value = start_day.value;
+    }
+  }
+  
+  // Enables or Disables the tags based date precedence
+  if(selectTag == start_year && selectTag.style.color == "orange") {
+    start_month.disabled = false;
+  } else if (selectTag == start_year) {
+    start_month.value = "";
+    changeColorAfterSelection(start_month);
+    start_month.disabled = true;
+    
+    start_day.value = "";
+    changeColorAfterSelection(start_day);
+    start_day.disabled = true;
+  }
+  
+  if(selectTag == start_month && selectTag.style.color == "orange") {
+    start_day.disabled = false;
+  } else if (selectTag == start_month) {
+    start_day.value = "";
+    changeColorAfterSelection(start_day);
+    start_day.disabled = true;
+  }
+  
+  if(selectTag == end_year && selectTag.style.color == "orange") {
+    end_month.disabled = false;
+  } else if (selectTag == end_year) {
+    end_month.value = "";
+    changeColorAfterSelection(end_month);
+    end_month.disabled = true;
+    
+    end_day.value = "";
+    changeColorAfterSelection(end_day);
+    end_day.disabled = true;
+  }
+  
+  if(selectTag == end_month && selectTag.style.color == "orange") {
+    end_day.disabled = false;
+  } else if (selectTag == end_month) {
+    end_day.value = "";
+    changeColorAfterSelection(end_day);
+    end_day.disabled = true;
+  }
+}
+
+
+function isFilterApplied() {
+  if(type_select.value != "" || status_select.value != "" || score_select.value != "" ||
+    rating_select.value != "" || start_year.value != "" || start_month.value != "" ||
+    start_day.value != "" || end_year.value != "" || end_month.value != "" ||
+    end_day.value != "" || genresSelectedArray.length != 0) {
+      return true;
+  }
+}
+
+
+filter_container_selectTags.forEach(selectTag => {
+  selectTag.addEventListener('change', function() {
+    changeColorAfterSelection(this);
+    manageDateFilterPrecedence(this);
+  });
+});
+
+
+function showFilterOptions() {
+  if(filter_enable_status == false) {
+    filter_container.style.display = "block";        
+    filter_button.style.backgroundColor = "#ffa600";      
+    fetchAndDisplayGenreButtons();
+    filter_enable_status = true;
+  } else {
+    if(isFilterApplied()) {      
+      filter_button.style.backgroundColor = "#ffa600";  
+    } else {
+      filter_button.style.backgroundColor = "#00eeff";  
+    }
+    
+    filter_container.style.display = "none";
+    filter_enable_status = false;
+  }
+}
+
+
+function clearFilterSelection() {
+  filter_container_selectTags.forEach(selectTag => {
+    selectTag.value = "";
+    changeColorAfterSelection(selectTag);
+    manageDateFilterPrecedence(selectTag);
+  });
+  
+  genresSelectedArray.length = 0;   
+  if(allGenreButtons) {
+    allGenreButtons.forEach(buttonTag => { 
+      changeGenreButtonColor(buttonTag, true);
+    });  
+  }
+}
+
+
+function updateGenresSelectedArray(value) {
+  const index = genresSelectedArray.indexOf(value);
+
+  if (index === -1) {    
+    genresSelectedArray.push(value);
+  } else {    
+    genresSelectedArray.splice(index, 1);
+  }
+}
+
+
+function changeColorAfterSelection(selectTagObject) {
+  if(selectTagObject.value == "") {
+    selectTagObject.style.color = "#03ffdd";
+    selectTagObject.style.border = "1px solid #00eeff";  
+    selectTagObject.style.backgroundColor = "#13171d";
+    return;
+  }
+
+  selectTagObject.style.color = "orange";
+  selectTagObject.style.border = "1px solid orange";  
+  selectTagObject.style.backgroundColor = "#1d1713";
+}
+
+
+function populateYearDropdown(yearSelect) {     
+  if(yearSelect.querySelectorAll('option').length > 1) {
+    return;
+  }
+
+  const currentYear = new Date().getFullYear();      
+  for (let year = currentYear; year >= 1907; year--) {
+    const option = document.createElement('option');
+    option.value = year;     
+    option.textContent = year;    
+    yearSelect.appendChild(option);
+  }
+}
+
+
+function populateMonthDropdown(monthSelect) {   
+  if(monthSelect.querySelectorAll('option').length > 1) {
+    return;
+  }
+
+  for (let month = 1; month <= 12; month++) {
+    const option = document.createElement('option');
+    option.value = month;     
+    option.textContent = month;
+    monthSelect.appendChild(option);
+  }
+}
+
+
+function populateDayDropdown(daySelect) {
+  if(daySelect.querySelectorAll('option').length > 1) {
+    return;
+  }
+
+  for (let day = 1; day <= 31; day++) {
+    const option = document.createElement('option');
+    option.value = day;     
+    option.textContent = day;
+    daySelect.appendChild(option);
+  }
+}
+
+
+function changeGenreButtonColor(genreButton, changeToDefault = false) {  
+  if(genreButton.style.color == "orange" || changeToDefault) {
+    genreButton.style.color = "#03ffdd";
+    genreButton.style.border = "1px solid #00eeff";  
+    genreButton.style.backgroundColor = "#13171d";  
+  } else {
+    genreButton.style.color = "orange";
+    genreButton.style.border = "1px solid orange";  
+    genreButton.style.backgroundColor = "#1d1713";
+  }
+}
+
+
+async function fetchAndDisplayGenreButtons() {  
+  if(genre_buttons_container.querySelectorAll('button').length != 0) {
+    return;
+  }
+  
+  error_genre_display.innerHTML = "";
+  let url = `${jikanAPI_URL}/genres/anime`;    
+  try {
+    const response = await fetch(url);    
+    const data = await response.json();
+    
+    const sortedGenres = data.data.sort((a, b) => a.mal_id - b.mal_id);
+
+    sortedGenres.forEach(genre => {
+      const button = document.createElement('button');
+      button.className = 'genre-button';
+      button.textContent = genre.name;
+      button.value = genre.mal_id;   
+      button.addEventListener('click', function() {  
+        updateGenresSelectedArray(this.value);
+        changeGenreButtonColor(this);
+      });
+
+      genre_buttons_container.appendChild(button);
+    });
+
+    allGenreButtons = genre_buttons_container.querySelectorAll('button');
+  } catch(error) {        
+    error_genre_display.innerHTML = `${error.message} genres!`;
+  }
+}
+
+/*##########################################################*/
+
+
+
+/*################# Screenshot Button Code #################*/
+
+// Toggles between watch order and screenshot button
+function screenshot_Button_Toggle(callingButton, otherButton) {
+  callingButton.style.display = "none";  
+  otherButton.style.display = "block";
+  (sessionStorage.getItem("currentScreenshotButtonStatus") == "screenshot") ? sessionStorage.setItem("currentScreenshotButtonStatus", "watch-order") : sessionStorage.setItem("currentScreenshotButtonStatus", "screenshot");
+}
+
+
+// Takes screenshot of Anime Card and save it with the Anime name as a PNG image file
+function takeScreenshot(wrapper, imgContainer, img) { 
+  if(sessionStorage.getItem("currentScreenshotButtonStatus") != "screenshot") {
+    return;
+  }
+
+  const animeTitle = (wrapper.querySelector('h4').innerText)
+  .replace(/[\/\\:*?"<>|]/g, '') // Replaces illegal file name characters
+  .normalize("NFD") // Normalizes the string to decompose diacritical marks
+  .replace(/[\u0300-\u036f]/g, "") // Removes diacritical marks
+  .replace(/\s{2,}/g, " ") // Replaces multiple spaces with a single space
+  .trim(); 
+
+  imgContainer.style.height = "130px";
+  imgContainer.style.minWidth = "88px";
+  imgContainer.style.maxWidth = "88px";
+
+  img.style.height = "130px";
+  img.style.minWidth = "88px";
+  img.style.maxWidth = "88px";
+     
+  wrapper.style.paddingLeft = "7px";
+  wrapper.style.border = "3px solid white";    
+  setTimeout(() => {
+    wrapper.style.border = "3px solid transparent";  
+  }, 2000);
+
+  wrapper.style.backgroundColor = "#111111";
+  wrapper.style.borderRadius = "10px";  
+
+  // Draws Element Node to canvas
+  html2canvas(wrapper, {
+      allowTaint: true,
+      useCORS: true,       
+      windowWidth: '440px',
+      x: 0.15,              
+      y: -0.2,
+      scale: 5
+  }).then(canvas => {        
+      const downloadLink = document.createElement('a');
+      downloadLink.href = canvas.toDataURL('image/png');
+      downloadLink.download = `${animeTitle}.png`; 
+      downloadLink.click();       
+  }).catch(error => {
+      console.error('Error capturing screenshot:', error);
+  });
+
+  imgContainer.style.height = "115px";
+  imgContainer.style.minWidth = "78px";
+  imgContainer.style.maxWidth = "78px";
+
+  img.style.height = "115px";
+  img.style.minWidth = "78px";
+  img.style.maxWidth = "78px";
+
+  wrapper.style.paddingLeft = "0px";
+  wrapper.style.backgroundColor = "#1f232d";
+  wrapper.style.borderRadius = "5px";  
+}
+
+/*##########################################################*/
+
 
 // Disables autocomplete on query input tag for Windows and Linux (Desktop)
 (/Windows/i.test(navigator.userAgent) || (/Linux/i.test(navigator.userAgent) && !/Android/i.test(navigator.userAgent))) ? query.setAttribute('autocomplete', 'off') : null;
@@ -52,20 +370,6 @@ window.addEventListener("load", () => {
     document.querySelector("#watch-order-button").style.display = "block";   
   }
 });  
-
-// Toggles between watch order and screenshot button
-function screenshot_Button_Toggle(callingButton, otherButton) {
-  callingButton.style.display = "none";  
-  otherButton.style.display = "block";
-  (sessionStorage.getItem("currentScreenshotButtonStatus") == "screenshot") ? sessionStorage.setItem("currentScreenshotButtonStatus", "watch-order") : sessionStorage.setItem("currentScreenshotButtonStatus", "screenshot");
-}
-
-
-filter_container_selectTags.forEach(selectTag => {
-  selectTag.addEventListener('change', function() {
-    changeColorAfterSelection(this);
-  });
-});
 
 
 // Restarts the fetch when online, if the device was offline during fetch 
@@ -205,207 +509,6 @@ function loadingAnimation() {
 }
 
 
-// Takes screenshot of Anime Card and save it with the Anime name as a PNG image file
-function takeScreenshot(wrapper, imgContainer, img) { 
-  if(sessionStorage.getItem("currentScreenshotButtonStatus") != "screenshot") {
-    return;
-  }
-
-  const animeTitle = (wrapper.querySelector('h4').innerText)
-  .replace(/[\/\\:*?"<>|]/g, '') // Replaces illegal file name characters
-  .normalize("NFD") // Normalizes the string to decompose diacritical marks
-  .replace(/[\u0300-\u036f]/g, "") // Removes diacritical marks
-  .replace(/\s{2,}/g, " ") // Replaces multiple spaces with a single space
-  .trim(); 
-
-  imgContainer.style.height = "130px";
-  imgContainer.style.minWidth = "88px";
-  imgContainer.style.maxWidth = "88px";
-
-  img.style.height = "130px";
-  img.style.minWidth = "88px";
-  img.style.maxWidth = "88px";
-     
-  wrapper.style.paddingLeft = "7px";
-  wrapper.style.border = "3px solid white";    
-  setTimeout(() => {
-    wrapper.style.border = "3px solid transparent";  
-  }, 2000);
-
-  wrapper.style.backgroundColor = "#111111";
-  wrapper.style.borderRadius = "10px";  
-
-  // Draws Element Node to canvas
-  html2canvas(wrapper, {
-      allowTaint: true,
-      useCORS: true,       
-      windowWidth: '440px',
-      x: 0.15,              
-      y: -0.2,
-      scale: 5
-  }).then(canvas => {        
-      const downloadLink = document.createElement('a');
-      downloadLink.href = canvas.toDataURL('image/png');
-      downloadLink.download = `${animeTitle}.png`; 
-      downloadLink.click();       
-  }).catch(error => {
-      console.error('Error capturing screenshot:', error);
-  });
-
-  imgContainer.style.height = "115px";
-  imgContainer.style.minWidth = "78px";
-  imgContainer.style.maxWidth = "78px";
-
-  img.style.height = "115px";
-  img.style.minWidth = "78px";
-  img.style.maxWidth = "78px";
-
-  wrapper.style.paddingLeft = "0px";
-  wrapper.style.backgroundColor = "#1f232d";
-  wrapper.style.borderRadius = "5px";  
-}
-
-
-let filter_enable_status = true;
-function showFilterOptions() {
-  if(filter_enable_status == true) {
-    filter_container.style.display = "block";        
-    filter_button.style.backgroundColor = "#ffa600";      
-    fetchAndDisplayGenreButtons();
-    filter_enable_status = false;
-  } else {
-    filter_container.style.display = "none";
-    filter_button.style.backgroundColor = "#00eeff";  
-    filter_enable_status = true;
-  }
-}
-
-
-function clearFilterSelection() {
-  filter_container_selectTags.forEach(selectTag => {
-    selectTag.value = "";
-    changeColorAfterSelection(selectTag);
-  });
-
-  allGenreButtons.forEach(buttonTag => { 
-    genresSelectedArray.length = 0;   
-    changeGenreButtonColor(buttonTag, true);
-  });
-}
-
-
-function updateGenresSelectedArray(value) {
-  const index = genresSelectedArray.indexOf(value);
-
-  if (index === -1) {    
-    genresSelectedArray.push(value);
-  } else {    
-    genresSelectedArray.splice(index, 1);
-  }
-}
-
-
-function changeColorAfterSelection(selectTagObject) {
-  if(selectTagObject.value == "") {
-    selectTagObject.style.color = "#03ffdd";
-    selectTagObject.style.border = "1px solid #00eeff";  
-    selectTagObject.style.backgroundColor = "#13171d";
-    return;
-  }
-
-  selectTagObject.style.color = "orange";
-  selectTagObject.style.border = "1px solid orange";  
-  selectTagObject.style.backgroundColor = "#1d1713";
-}
-
-
-function populateYearDropdown(yearSelect) {     
-  if(yearSelect.querySelectorAll('option').length > 1) {
-    return;
-  }
-
-  const currentYear = new Date().getFullYear();      
-  for (let year = currentYear; year >= 1907; year--) {
-    const option = document.createElement('option');
-    option.value = year;     
-    option.textContent = year;    
-    yearSelect.appendChild(option);
-  }
-}
-
-
-function populateMonthDropdown(monthSelect) {   
-  if(monthSelect.querySelectorAll('option').length > 1) {
-    return;
-  }
-
-  for (let month = 1; month <= 12; month++) {
-    const option = document.createElement('option');
-    option.value = month;     
-    option.textContent = month;
-    monthSelect.appendChild(option);
-  }
-}
-
-
-function populateDayDropdown(daySelect) {
-  if(daySelect.querySelectorAll('option').length > 1) {
-    return;
-  }
-
-  for (let day = 1; day <= 31; day++) {
-    const option = document.createElement('option');
-    option.value = day;     
-    option.textContent = day;
-    daySelect.appendChild(option);
-  }
-}
-
-
-function changeGenreButtonColor(genreButton, changeToDefault = false) {  
-  if(genreButton.style.color == "orange" || changeToDefault) {
-    genreButton.style.color = "#03ffdd";
-    genreButton.style.border = "1px solid #00eeff";  
-    genreButton.style.backgroundColor = "#13171d";  
-  } else {
-    genreButton.style.color = "orange";
-    genreButton.style.border = "1px solid orange";  
-    genreButton.style.backgroundColor = "#1d1713";
-  }
-}
-
-
-async function fetchAndDisplayGenreButtons() {  
-  if(genre_buttons_container.querySelectorAll('button').length != 0) {
-    return;
-  }
-  
-  error_genre_display.innerHTML = "";
-  let url = `${jikanAPI_URL}/genres/anime`;    
-  try {
-    const response = await fetch(url);    
-    const data = await response.json();
-    
-    data.data.forEach(genre => {
-      const button = document.createElement('button');
-      button.className = 'genre-button';
-      button.textContent = genre.name;
-      button.value = genre.mal_id;   
-      button.addEventListener('click', function() {  
-        updateGenresSelectedArray(this.value);
-        changeGenreButtonColor(this);
-      });
-
-      genre_buttons_container.appendChild(button);
-    });
-
-    allGenreButtons = genre_buttons_container.querySelectorAll('button');
-  } catch(error) {        
-    error_genre_display.innerHTML = `${error.message} genres!`;
-  }
-}
-
-
 function showError(error) {
   animeListCount.innerText = "";    
   loading.style.display = "none";
@@ -439,6 +542,9 @@ function clearSearchResults() {
 }
 
 
+
+/*############ Fetch and Display AnimeList Code ############*/
+
 async function getQueryAnimeList() {
   if (fetchAbortController) {
     fetchAbortController.abort();    
@@ -471,8 +577,44 @@ async function getTopAnimeList() {
 }
 
 
-async function getAnimeListByGenres() {
- 
+async function getAnimeListByQueryWithFilter() {
+  if (fetchAbortController) {
+    fetchAbortController.abort();    
+  }
+  fetchAbortController = new AbortController();
+  const signal = fetchAbortController.signal;
+
+  search_result.innerHTML = "";
+
+  let startDate = ""; 
+  let endDate = "";
+
+  if(start_year.value != "") {
+    if(start_month.value != "" && start_day.value != "") {
+      startDate = `${start_year.value}-${start_month.value}-${start_day.value}`;
+    } else if(start_month.value != "") {
+      startDate = `${start_year.value}-${start_month.value}`;
+    } else {
+      startDate = `${start_year.value}`;
+    }
+  }
+
+  if(end_year.value != "") {
+    if(end_month.value != "" && end_day.value != "") {
+      endDate = `${end_year.value}-${end_month.value}-${end_day.value}`;
+    } else if(end_month.value != "") {
+      endDate = `${end_year.value}-${end_month.value}`;
+    } else {
+      endDate = `${end_year.value}`;
+    }
+  }
+
+  //let url = `${jikanAPI_URL}/anime?q=${encodeURIComponent(query.value.trim())}&sfw=${sfw}&type=${type_select.value}&score=${score_select.value}&status=${score_select.value}&rating=${rating_select.value}&start_date=${startDate}&end_date=${endDate}`;
+  let url = `${jikanAPI_URL}/anime?rating=${rating_select.value}&status=${score_select.value}&genres=${genresSelectedArray}&q=${encodeURIComponent(query.value.trim())}`;
+
+  const response = await fetch(url, {signal});    
+  const data = await response.json();  
+  return data;
 }
 
 
@@ -492,13 +634,16 @@ async function displayAnimeList(fetch_option) {
       case 'getAnimeListByGenres':
         fetched_data = await getAnimeListByGenres();
         break;
+      case 'getAnimeListByQueryWithFilter':
+        fetched_data = await getAnimeListByQueryWithFilter();
+        break;
     }
 
     showLoading(false);
     const dataLength = fetched_data.data.length;      
     showAnimeListCount(dataLength);
 
-    if(dataLength > 0) {          
+    if(dataLength > 0) {            
       for(let i = 0; i < dataLength; i++) {
         const animeData = fetched_data.data[i];      
         const genresList = animeData.genres.map(genre => genre.name).join(' / ');   
@@ -533,3 +678,5 @@ async function displayAnimeList(fetch_option) {
 }
 
 displayAnimeList('getTopAnimeList');
+
+/*##########################################################*/
