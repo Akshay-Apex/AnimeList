@@ -245,8 +245,8 @@ select::-webkit-scrollbar {
   font-size: large;
   border: none;
   transition: all 0.15s ease-in-out;
-  cursor: pointer;
-  background-color: #00eeff;
+  cursor: pointer;  
+  background-color: #007c84;
   color: #253947;
 }
 
@@ -259,8 +259,8 @@ select::-webkit-scrollbar {
   font-size: large;
   border: none;
   transition: all 0.15s ease-in-out;
-  cursor: pointer;
-  background-color: #ffa600;
+  cursor: pointer;  
+  background-color: #7e5200;
   color: #253947;  
 }
 

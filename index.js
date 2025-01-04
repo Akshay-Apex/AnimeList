@@ -18,6 +18,7 @@ let sfw = 1;
 
 const filter_button = document.querySelector("#filter-button");
 const filter_apply_button = document.querySelector("#filter-apply-button");
+const filter_clear_button = document.querySelector("#filter-clear-button");
 const filter_container = document.querySelector("#filter-container");
 const filter_container_selectTags = document.querySelectorAll("select");
 
@@ -48,7 +49,7 @@ window.addEventListener('load', function() {
 
 
 function manageDateFilterPrecedence(selectTag) {   
-  // Corrects the start and end date precedence dynamically
+  // Corrects the start and end date precedence value dynamically
   if(start_year.value != "" && end_year.value != "") {
     if(Number(start_year.value) > Number(end_year.value)) {      
       end_year.value = start_year.value;
@@ -126,6 +127,7 @@ filter_container_selectTags.forEach(selectTag => {
   selectTag.addEventListener('change', function() {
     changeColorAfterSelection(this);
     manageDateFilterPrecedence(this);
+    enableFilterAndClearButton(isFilterApplied());    
   });
 });
 
@@ -149,7 +151,26 @@ function showFilterOptions() {
 }
 
 
+function enableFilterAndClearButton(enable) {
+  if(enable) {
+    filter_clear_button.disabled = false;
+    filter_clear_button.style.backgroundColor = "#ffa600";
+
+    filter_apply_button.disabled = false;
+    filter_apply_button.style.backgroundColor = "#00eeff";
+  } else {
+    filter_clear_button.disabled = true;
+    filter_clear_button.style.backgroundColor = "#7e5200";
+
+    filter_apply_button.disabled = true;
+    filter_apply_button.style.backgroundColor = "#007c84";
+  }
+}
+
+
 function clearFilterSelection() {
+  enableFilterAndClearButton(false);
+
   filter_container_selectTags.forEach(selectTag => {
     selectTag.value = "";
     changeColorAfterSelection(selectTag);
@@ -212,6 +233,9 @@ function populateMonthDropdown(monthSelect) {
 
   for (let month = 1; month <= 12; month++) {
     const option = document.createElement('option');
+    if(month < 10) {
+      option.value = '0' + String(month);     
+    }
     option.value = month;     
     option.textContent = month;
     monthSelect.appendChild(option);
@@ -225,7 +249,10 @@ function populateDayDropdown(daySelect) {
   }
 
   for (let day = 1; day <= 31; day++) {
-    const option = document.createElement('option');
+    const option = document.createElement('option');    
+    if(day < 10) {
+      option.value = '0' + String(day);        
+    }
     option.value = day;     
     option.textContent = day;
     daySelect.appendChild(option);
@@ -267,6 +294,7 @@ async function fetchAndDisplayGenreButtons() {
       button.addEventListener('click', function() {  
         updateGenresSelectedArray(this.value);
         changeGenreButtonColor(this);
+        enableFilterAndClearButton(isFilterApplied());        
       });
 
       genre_buttons_container.appendChild(button);
@@ -381,7 +409,7 @@ function refresh_Search_When_Online() {
   } 
   
   if(wasOffline) {
-    displayAnimeList('getQueryAnimeList');
+    displayAnimeList('getAnimeListByQueryWithFilter');
     wasOffline = false;
   }
 }
@@ -392,12 +420,13 @@ setInterval(refresh_Search_When_Online, 3000);
 let typingTimeout;
 let prevQueryString;
 let symbolState = "search";
+
 query.addEventListener("input", () => {
   clearTimeout(typingTimeout);
   typingTimeout = setTimeout(() => {  
     if(prevQueryString != query.value.trim() && query.value.trim() != '') {
       prevQueryString = query.value.trim();
-      displayAnimeList('getQueryAnimeList');  
+      displayAnimeList('getAnimeListByQueryWithFilter');  
     }
   }, 1000);
 
@@ -408,7 +437,7 @@ query.addEventListener("input", () => {
     search_symbol.style.display = "block";
     search_symbol.style.fill = "rgba(0, 0, 0, 0)";        
 
-    input_symbol_container.onclick = () => { displayAnimeList('getQueryAnimeList') };
+    input_symbol_container.onclick = () => { displayAnimeList('getAnimeListByQueryWithFilter') };
     symbolState = "search";        
         
     setTimeout(() => {        
@@ -437,7 +466,7 @@ query.addEventListener("keydown", (event) => {
   if(event.key == "Enter") {  
     clearTimeout(typingTimeout);
     query.blur();
-    displayAnimeList('getQueryAnimeList');      
+    displayAnimeList('getAnimeListByQueryWithFilter');      
   }
 });
 
@@ -488,7 +517,7 @@ function toggleButton() {
     sfw_button.classList.remove("nsfw");
     sfw_button.classList.add("sfw");
   }
-  displayAnimeList('getQueryAnimeList');
+  displayAnimeList('getAnimeListByQueryWithFilter');
 }
 
 
@@ -537,29 +566,8 @@ function showAnimeListCount(dataLength) {
 }
 
 
-function clearSearchResults() {
-  search_result.innerHTML = "";
-}
-
-
 
 /*############ Fetch and Display AnimeList Code ############*/
-
-async function getQueryAnimeList() {
-  if (fetchAbortController) {
-    fetchAbortController.abort();    
-  }
-  fetchAbortController = new AbortController();
-  const signal = fetchAbortController.signal;
-
-  search_result.innerHTML = "";
-  let url = `${jikanAPI_URL}/anime?q=${encodeURIComponent(query.value.trim())}&sfw=${sfw}`;
-
-  const response = await fetch(url, {signal});    
-  const data = await response.json();
-  return data;
-}
-
 
 async function getTopAnimeList() {
   if (fetchAbortController) {
@@ -567,8 +575,7 @@ async function getTopAnimeList() {
   }
   fetchAbortController = new AbortController();
   const signal = fetchAbortController.signal;
-
-  search_result.innerHTML = "";
+  
   let url = `${jikanAPI_URL}/top/anime?sfw=${sfw}`;
   
   const response = await fetch(url, {signal});    
@@ -582,36 +589,28 @@ async function getAnimeListByQueryWithFilter() {
     fetchAbortController.abort();    
   }
   fetchAbortController = new AbortController();
-  const signal = fetchAbortController.signal;
-
-  search_result.innerHTML = "";
+  const signal = fetchAbortController.signal;  
 
   let startDate = ""; 
   let endDate = "";
 
-  if(start_year.value != "") {
-    if(start_month.value != "" && start_day.value != "") {
-      startDate = `${start_year.value}-${start_month.value}-${start_day.value}`;
-    } else if(start_month.value != "") {
-      startDate = `${start_year.value}-${start_month.value}`;
-    } else {
-      startDate = `${start_year.value}`;
-    }
+  if(start_year.value != "") {    
+    startDate = `${start_year.value}-${start_month.value || '01'}-${start_day.value || "01"}`;        
   }
 
   if(end_year.value != "") {
-    if(end_month.value != "" && end_day.value != "") {
-      endDate = `${end_year.value}-${end_month.value}-${end_day.value}`;
-    } else if(end_month.value != "") {
-      endDate = `${end_year.value}-${end_month.value}`;
-    } else {
-      endDate = `${end_year.value}`;
-    }
+    endDate = `${end_year.value}-${end_month.value || "01"}-${end_day.value || "01"}`;
   }
 
-  //let url = `${jikanAPI_URL}/anime?q=${encodeURIComponent(query.value.trim())}&sfw=${sfw}&type=${type_select.value}&score=${score_select.value}&status=${score_select.value}&rating=${rating_select.value}&start_date=${startDate}&end_date=${endDate}`;
-  let url = `${jikanAPI_URL}/anime?rating=${rating_select.value}&status=${score_select.value}&genres=${genresSelectedArray}&q=${encodeURIComponent(query.value.trim())}`;
-
+  let url = `${jikanAPI_URL}/anime?q=${encodeURIComponent(query.value.trim())}&sfw=${sfw}`;
+  if(type_select.value != "") url += `&type=${type_select.value}`;
+  if(score_select.value != "") url += `&score=${score_select.value}`;
+  if(status_select.value != "") url += `&status=${status_select.value}`;
+  if(rating_select.value != "") url += `&rating=${rating_select.value}`;
+  if(startDate != "") url += `&start_date=${startDate}`;
+  if(endDate != "") url += `&end_date=${endDate}`;
+  if(genresSelectedArray.length != 0) url += `&genres=${genresSelectedArray.join(',')}`; 
+     
   const response = await fetch(url, {signal});    
   const data = await response.json();  
   return data;
@@ -622,20 +621,14 @@ async function displayAnimeList(fetch_option) {
   try {    
     let fetched_data = null;
     showLoading(true);
-    clearSearchResults();
+    search_result.innerHTML = "";
    
     switch(fetch_option) {
       case 'getTopAnimeList':
         fetched_data = await getTopAnimeList();
-        break;
-      case 'getQueryAnimeList':
-        (query.value.trim() == "") ? fetched_data = await getTopAnimeList() : fetched_data = await getQueryAnimeList();
-        break;        
-      case 'getAnimeListByGenres':
-        fetched_data = await getAnimeListByGenres();
-        break;
+        break;     
       case 'getAnimeListByQueryWithFilter':
-        fetched_data = await getAnimeListByQueryWithFilter();
+        (query.value.trim() == "" && !isFilterApplied()) ? fetched_data = await getTopAnimeList() : fetched_data = await getAnimeListByQueryWithFilter();        
         break;
     }
 
