@@ -726,7 +726,7 @@ const footerObserver = new IntersectionObserver((entries) => {
   threshold: 0.1 
 });
 
-const headerObserver = new IntersectionObserver((entries) => {
+const filterObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       scrollUp.style.display = "none";
@@ -749,7 +749,7 @@ window.addEventListener('scroll', function() {
   if(window.getComputedStyle(scrollDown).display == "block") {
     footerObserver.observe(document.querySelector("#scroll-target-footer"));
   } else {
-    headerObserver.observe(document.querySelector("#scroll-target-header"));
+    filterObserver.observe(document.querySelector("#filter-target-after-reset"));
   }
 });
 
@@ -761,7 +761,9 @@ function auto_Enable_Disable_ScrollButton(disable = false) {
   }
 
   if(document.documentElement.scrollHeight > window.innerHeight) {    
-    score_button.style.display = "block";    
+    score_button.style.display = "block";   
+    scrollUp.style.display = "none";
+    scrollDown.style.display = "block"; 
   } else {
     score_button.style.display = "none";    
   }
