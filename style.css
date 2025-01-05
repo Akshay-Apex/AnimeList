@@ -200,6 +200,34 @@ hr {
   color: #03ffdd;
 }
 
+#score {
+  width: 90px;  
+  height: 15.5px;
+  margin-bottom: 20px;
+  padding: 5px 8px;  
+  border-radius: 5px;   
+  border: 1px solid #00eeff;  
+  font-size: small;  
+  color: #03ffdd;
+  background-color: #13171d;  
+  
+  &::placeholder {
+    text-align: center;
+    font-size: small;            
+    color: #03ffdd;       
+    font-style: italic;
+  }
+
+  &:focus {
+    outline: none;           
+    transition: all 0.15s ease-in-out;  
+
+    &::placeholder {      
+      color: #03ffdd;    
+    }
+  }
+}
+
 .center-selectTag-text {
   text-align: center;
 }
@@ -395,7 +423,7 @@ select::-webkit-scrollbar {
   color: #00ff2a;
 }
 
-#score-button {      
+#scroll-button {      
   position: fixed;
   bottom: 5px;   
   right: 15px;    
@@ -456,8 +484,7 @@ select::-webkit-scrollbar {
   }
 
   &:focus {
-    outline: none;      
-    color: #03ffdd;    
+    outline: none;           
     transition: all 0.15s ease-in-out;  
 
     &::placeholder {      
@@ -489,6 +516,11 @@ select::-webkit-scrollbar {
   color: #00ffff;  
   background-color: #006381;    
   cursor: pointer;
+}
+
+.page-special-symbol {
+  font-weight: 500;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 footer {      

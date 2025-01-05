@@ -142,6 +142,20 @@ filter_container_selectTags.forEach(selectTag => {
 });
 
 
+score_select.addEventListener('input', function() {
+  if(score_select.value != "") {
+    score_select.style.color = "orange";
+    score_select.style.border = "1px solid orange";
+    score_select.style.backgroundColor = "#1d1713";  
+  } else {        
+    score_select.style.border = "1px solid #00eeff";  
+    score_select.style.backgroundColor = "#13171d";  
+  }
+
+  enableFilterAndClearButton(isFilterApplied()); 
+});
+
+
 function showFilterOptions() {
   if(filter_enable_status == false) {
     filter_container.style.display = "block";        
@@ -188,6 +202,10 @@ function clearFilterSelection() {
   }
 
   enableFilterAndClearButton(false);
+
+  score_select.value = "";  
+  score_select.style.border = "1px solid #00eeff";  
+  score_select.style.backgroundColor = "#13171d"; 
 
   filter_container_selectTags.forEach(selectTag => {
     selectTag.value = "";
@@ -649,13 +667,13 @@ function jumpToSpecifiedPage(caller) {
     page_select = "";
 
   } else if(caller == "page-jump-input" &&     
-    page_jump_input.value.trim() != 0 && 
-    page_jump_input.value.trim() != "" &&
-    page_jump_input.value.trim() <= fetched_data.pagination.last_visible_page &&
-    page_jump_input.value.trim() >= 1) {
+    page_jump_input.value != 0 && 
+    page_jump_input.value != "" &&
+    page_jump_input.value <= fetched_data.pagination.last_visible_page &&
+    page_jump_input.value >= 1) {
             
       changePageJumpButtonsColor(page_jump_input);
-      if(page_jump_input.value.trim() == fetched_data.pagination.current_page) {                
+      if(page_jump_input.value == fetched_data.pagination.current_page) {                
         if(filter_enable_status) {
           setTimeout(() => {
             document.querySelector("#result-status-container").scrollIntoView({ behavior: 'smooth', block: 'start' });       
@@ -663,7 +681,7 @@ function jumpToSpecifiedPage(caller) {
         }
         return;
       } 
-      page_select = page_jump_input.value.trim();   
+      page_select = page_jump_input.value;   
       page_jump_button.innerText = `${page_select} | PG Jump`;    
       displayAnimeList('getAnimeListByQueryWithFilter')
       page_select = "";
@@ -713,7 +731,7 @@ function enablePageNavigationButtons(length) {
 
 const scrollUp = document.querySelector('#scroll-up-button');
 const scrollDown = document.querySelector('#scroll-down-button');
-const score_button = document.querySelector("#score-button");
+const scroll_button = document.querySelector("#scroll-button");
 
 const footerObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
@@ -756,16 +774,16 @@ window.addEventListener('scroll', function() {
 
 function auto_Enable_Disable_ScrollButton(disable = false) {
   if(disable) {
-    score_button.style.display = "none";    
+    scroll_button.style.display = "none";    
     return;
   }
 
   if(document.documentElement.scrollHeight > window.innerHeight) {    
-    score_button.style.display = "block";   
+    scroll_button.style.display = "block";   
     scrollUp.style.display = "none";
     scrollDown.style.display = "block"; 
   } else {
-    score_button.style.display = "none";    
+    scroll_button.style.display = "none";    
   }
 }
 
@@ -831,12 +849,12 @@ let pageTypingTimeout
 page_jump_input.addEventListener('input', function() {
   clearTimeout(pageTypingTimeout);
   pageTypingTimeout = setTimeout(() => {  
-    if(prevPageNumber != page_jump_input.value.trim() && page_jump_input.value.trim() != '') {
-      prevPageNumber = page_jump_input.value.trim();      
+    if(prevPageNumber != page_jump_input.value && page_jump_input.value != '') {
+      prevPageNumber = page_jump_input.value;      
       jumpToSpecifiedPage('page-jump-input');    
     }
 
-    if(prevPageNumber == page_jump_input.value.trim() && page_jump_input.value.trim() != '') {
+    if(prevPageNumber == page_jump_input.value && page_jump_input.value != '') {
       page_jump_input.blur();
       changePageJumpButtonsColor(page_jump_input);
       if(filter_enable_status) {

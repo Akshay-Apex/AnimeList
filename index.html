@@ -80,19 +80,7 @@
         <br>
 
         <label>Score</label>
-        <select id="score" class="no-arrow">
-          <option value="">All</option>
-          <option value="1">(1) Appalling</option>
-          <option value="2">(2) Horrible</option>
-          <option value="3">(3) Very Bad</option>
-          <option value="4">(4) Bad</option>
-          <option value="5">(5) Average</option>
-          <option value="6">(6) Fine</option>
-          <option value="7">(7) Good</option>
-          <option value="8">(8) Very Good</option>
-          <option value="9">(9) Great</option>
-          <option value="9.99">(10) Masterpiece</option>
-        </select>
+        <input type="number" placeholder="Score (1 - 9.99)" id="score">        
         <br>
 
         <label>Rating</label>
@@ -137,9 +125,9 @@
         
         <label>Page Jump</label>   
         <button id="first-page-button" onclick="jumpToSpecifiedPage('first-page-button')">1</button> 
-        <span>• •</span>    
+        <span class="page-special-symbol">&lt;&lt;</span>    
         <input type="number" placeholder="Page Number" id="page-jump-input">
-        <span>• •</span>    
+        <span class="page-special-symbol">&gt;&gt;</span>    
         <button id="last-page-button" onclick="jumpToSpecifiedPage('last-page-button')"></button>     
         <br><br>
       </section>      
@@ -172,7 +160,7 @@
 
   </main>
   
-  <section id="score-button" onclick="scroll_Up_Or_Down()">
+  <section id="scroll-button" onclick="scroll_Up_Or_Down()">
     <svg id="scroll-up-button" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed">
       <path d="M480-528 296-344l-56-56 240-240 240 240-56 56-184-184Z"/>
     </svg>
