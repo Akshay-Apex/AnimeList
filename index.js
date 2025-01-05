@@ -717,7 +717,7 @@ const score_button = document.querySelector("#score-button");
 
 const footerObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
-    if (entry.isIntersecting) {
+    if (entry.isIntersecting && fetch_loading_status == false) {
       scrollDown.style.display = "none";
       scrollUp.style.display = "block";
     } 
@@ -746,16 +746,24 @@ function scroll_Up_Or_Down() {
 }
 
 window.addEventListener('scroll', function() {    
-  footerObserver.observe(document.querySelector("#scroll-target-footer"));
-  headerObserver.observe(document.querySelector("#scroll-target-header"));
+  if(window.getComputedStyle(scrollDown).display == "block") {
+    footerObserver.observe(document.querySelector("#scroll-target-footer"));
+  } else {
+    headerObserver.observe(document.querySelector("#scroll-target-header"));
+  }
 });
 
 
-function auto_Enable_Disable_ScrollButton() {
-  if(document.documentElement.scrollHeight > window.innerHeight) {
+function auto_Enable_Disable_ScrollButton(disable = false) {
+  if(disable) {
+    score_button.style.display = "none";    
+    return;
+  }
+
+  if(document.documentElement.scrollHeight > window.innerHeight) {    
     score_button.style.display = "block";    
   } else {
-    score_button.style.display = "none";
+    score_button.style.display = "none";    
   }
 }
 
@@ -879,6 +887,7 @@ function enableFilterPageJumpButtons(enable) {
 
 
 let fetched_data = null;
+let fetch_loading_status = false;
 
 async function displayAnimeList(fetch_option) {
   if(filter_enable_status) {
@@ -887,10 +896,12 @@ async function displayAnimeList(fetch_option) {
     }, 1500);
   }
   
-  enablePageNavigationButtons(0);      
+  enablePageNavigationButtons(0); 
+  auto_Enable_Disable_ScrollButton(true);
 
   try {        
     showLoading(true);
+    fetch_loading_status = true;
     search_result.innerHTML = "";
    
     switch(fetch_option) {
@@ -901,7 +912,7 @@ async function displayAnimeList(fetch_option) {
         (query.value.trim() == "" && !isFilterApplied()) ? fetched_data = await getTopAnimeList() : fetched_data = await getAnimeListByQueryWithFilter();                       
         break;
     }
-
+    
     showLoading(false);               
     const dataLength = fetched_data.pagination.items.count;     
     enableFilterPageJumpButtons(true);     
@@ -937,10 +948,12 @@ async function displayAnimeList(fetch_option) {
           document.getElementsByClassName("restricted-18")[i].style.display = "block";
         }
 
+        fetch_loading_status = false;
         auto_Enable_Disable_ScrollButton();
       }
     } 
   } catch(error) {       
+    fetch_loading_status = false;
     enable_WatchOrder_Or_Screenshot_Button(false);     
     enableFilterPageJumpButtons(false);
     showError(error);

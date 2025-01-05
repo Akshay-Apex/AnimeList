@@ -397,7 +397,7 @@ select::-webkit-scrollbar {
 
 #score-button {      
   position: fixed;
-  bottom: 10px;   
+  bottom: 5px;   
   right: 15px;    
   width: 35px;  
   height: 35px;  
