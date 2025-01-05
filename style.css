@@ -416,6 +416,7 @@ select::-webkit-scrollbar {
 }
 
 #scroll-down-button {  
+  display: block;  
   fill:#03ffdd;
   width: 35px;
   height: 35px;

@@ -158,6 +158,8 @@ function showFilterOptions() {
     filter_container.style.display = "none";
     filter_enable_status = false;
   }
+
+  auto_Enable_Disable_ScrollButton();
 }
 
 
@@ -289,7 +291,7 @@ function changeGenreButtonColor(genreButton, changeToDefault = false) {
 }
 
 
-async function fetchAndDisplayGenreButtons() {  
+async function fetchAndDisplayGenreButtons() {    
   if(genre_buttons_container.querySelectorAll('button').length != 0) {
     return;
   }
@@ -711,6 +713,7 @@ function enablePageNavigationButtons(length) {
 
 const scrollUp = document.querySelector('#scroll-up-button');
 const scrollDown = document.querySelector('#scroll-down-button');
+const score_button = document.querySelector("#score-button");
 
 const footerObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
@@ -735,18 +738,26 @@ const headerObserver = new IntersectionObserver((entries) => {
 });
 
 function scroll_Up_Or_Down() {  
-  if(scrollDown.style.display == "block") {
+  if(window.getComputedStyle(scrollDown).display == "block") {
     document.querySelector("#scroll-target-footer").scrollIntoView({ behavior: 'smooth', block: 'start' });               
   } else {
     document.querySelector("#scroll-target-header").scrollIntoView({ behavior: 'smooth', block: 'start' });           
   }
 }
 
-window.addEventListener('scroll', function() {
+window.addEventListener('scroll', function() {    
   footerObserver.observe(document.querySelector("#scroll-target-footer"));
   headerObserver.observe(document.querySelector("#scroll-target-header"));
 });
 
+
+function auto_Enable_Disable_ScrollButton() {
+  if(document.documentElement.scrollHeight > window.innerHeight) {
+    score_button.style.display = "block";    
+  } else {
+    score_button.style.display = "none";
+  }
+}
 
 
 
@@ -876,7 +887,7 @@ async function displayAnimeList(fetch_option) {
     }, 1500);
   }
   
-  enablePageNavigationButtons(0);    
+  enablePageNavigationButtons(0);      
 
   try {        
     showLoading(true);
@@ -925,6 +936,8 @@ async function displayAnimeList(fetch_option) {
         if(animeData.rating == "R+ - Mild Nudity" || animeData.rating == "Rx - Hentai") {
           document.getElementsByClassName("restricted-18")[i].style.display = "block";
         }
+
+        auto_Enable_Disable_ScrollButton();
       }
     } 
   } catch(error) {       
