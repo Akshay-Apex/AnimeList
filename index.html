@@ -31,7 +31,7 @@
   </header>
 
   <main>
-    <h1>Search Anime</h1>    
+    <h1 id="filter-target-after-reset">Search Anime</h1>    
     <div id="search-div-container">
       <button id="filter-button" onclick="showFilterOptions()">
         <svg id="filter-svg" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="white">
@@ -91,7 +91,7 @@
           <option value="7">(7) Good</option>
           <option value="8">(8) Very Good</option>
           <option value="9">(9) Great</option>
-          <option value="10">(10) Masterpiece</option>
+          <option value="9.99">(10) Masterpiece</option>
         </select>
         <br>
 
@@ -133,6 +133,14 @@
         <select id="end-day" onclick="populateDayDropdown(this)" class="no-arrow center-selectTag-text" disabled>
           <option value="">Day</option>
         </select>  
+        <br>
+        
+        <label>Page Jump</label>   
+        <button id="first-page-button" onclick="jumpToSpecifiedPage('first-page-button')">1</button> 
+        <span>• •</span>    
+        <input type="number" placeholder="Page Number" id="page-jump-input">
+        <span>• •</span>    
+        <button id="last-page-button" onclick="jumpToSpecifiedPage('last-page-button')"></button>     
         <br><br>
       </section>      
 
@@ -154,13 +162,19 @@
       <span id="loading"></span> 
       <span id="error"></span>
       <span id="animeListCount"></span>
-      <svg id="screenshot-button" onclick="screenshot_Button_Toggle(this, document.querySelector('#watch-order-button'))" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed">
+      <svg id="screenshot-button" onclick="screenshot_And_WatchOrder_Button_Toggle(this, document.querySelector('#watch-order-button'))" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e8eaed">
         <path d="M800-560v-120H680v-80h120q33 0 56.5 23.5T880-680v120h-80Zm-720 0v-120q0-33 23.5-56.5T160-760h120v80H160v120H80Zm600 360v-80h120v-120h80v120q0 33-23.5 56.5T800-200H680Zm-520 0q-33 0-56.5-23.5T80-280v-120h80v120h120v80H160Z"/>
       </svg>
-      <button id="watch-order-button" onclick="screenshot_Button_Toggle(this, document.querySelector('#screenshot-button'))">Watch Order</button>
+      <button id="watch-order-button" onclick="screenshot_And_WatchOrder_Button_Toggle(this, document.querySelector('#screenshot-button'))">Watch Order</button>
     </div>
 
-    <div id="search-result"></div>
+    <div id="search-result"></div>    
+
+    <div id="page-controls">
+      <button id="previous-button" onclick="jumpToPreviousPage()">Prev</button>        
+      <button id="page-jump" onclick="gotoFilterPageJump()">1 | PG Jump</button>    
+      <button id="next-button" onclick="jumpToNextPage()">Next</button>
+    </div>
   </main>
   
   <footer>

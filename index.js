@@ -27,6 +27,15 @@ const status_select = document.querySelector("#status");
 const score_select = document.querySelector("#score");
 const rating_select = document.querySelector("#rating");
 
+const first_page_button = document.querySelector("#first-page-button");
+const last_page_button = document.querySelector("#last-page-button");
+const page_jump_input = document.querySelector("#page-jump-input");
+
+const previous_page_button = document.querySelector("#previous-button");
+const page_jump_button = document.querySelector("#page-jump");
+const next_page_button = document.querySelector("#next-button");
+let page_select = "";
+
 const start_year = document.querySelector("#start-year");
 const start_month = document.querySelector("#start-month");
 const start_day = document.querySelector("#start-day");
@@ -35,16 +44,17 @@ const end_year = document.querySelector("#end-year");
 const end_month = document.querySelector("#end-month");
 const end_day = document.querySelector("#end-day");
 
-let genresSelectedArray = [];
 const genre_buttons_container = document.querySelector("#genre-buttons-container");  
-let allGenreButtons;
 const error_genre_display = document.querySelector("#error-genre-display");
+let genresSelectedArray = [];
+let allGenreButtons;
 
 let filter_enable_status = false;
 
 // Clears Filter data on load with a 1500ms delay 
 window.addEventListener('load', function() {
   setTimeout(clearFilterSelection, 1500);
+  enableFilterPageJumpButtons(false);
 });
 
 
@@ -169,6 +179,12 @@ function enableFilterAndClearButton(enable) {
 
 
 function clearFilterSelection() {
+  if(filter_enable_status) {
+    setTimeout(() => {
+      document.querySelector("#filter-target-after-reset").scrollIntoView({ behavior: 'smooth', block: 'start' }); 
+    }, 100);
+  }
+
   enableFilterAndClearButton(false);
 
   filter_container_selectTags.forEach(selectTag => {
@@ -313,9 +329,9 @@ async function fetchAndDisplayGenreButtons() {
 /*################# Screenshot Button Code #################*/
 
 // Toggles between watch order and screenshot button
-function screenshot_Button_Toggle(callingButton, otherButton) {
+function screenshot_And_WatchOrder_Button_Toggle(callingButton, targetButton) {
   callingButton.style.display = "none";  
-  otherButton.style.display = "block";
+  targetButton.style.display = "block";
   (sessionStorage.getItem("currentScreenshotButtonStatus") == "screenshot") ? sessionStorage.setItem("currentScreenshotButtonStatus", "watch-order") : sessionStorage.setItem("currentScreenshotButtonStatus", "screenshot");
 }
 
@@ -385,19 +401,6 @@ function takeScreenshot(wrapper, imgContainer, img) {
 
 // Disables autocomplete on query input tag for Windows and Linux (Desktop)
 (/Windows/i.test(navigator.userAgent) || (/Linux/i.test(navigator.userAgent) && !/Android/i.test(navigator.userAgent))) ? query.setAttribute('autocomplete', 'off') : null;
-
-
-// Loads the appropriate button based on session data, if null then watch-order gets loaded as default
-window.addEventListener("load", () => {
-  if(sessionStorage.getItem("currentScreenshotButtonStatus") == "screenshot") {
-    document.querySelector("#screenshot-button").style.display = "block";
-  } else if (sessionStorage.getItem("currentScreenshotButtonStatus") == "watch-order") {
-    document.querySelector("#watch-order-button").style.display = "block";    
-  } else {
-    sessionStorage.setItem("currentScreenshotButtonStatus", "watch-order");
-    document.querySelector("#watch-order-button").style.display = "block";   
-  }
-});  
 
 
 // Restarts the fetch when online, if the device was offline during fetch 
@@ -566,6 +569,146 @@ function showAnimeListCount(dataLength) {
 }
 
 
+const watch_order_button = document.querySelector("#watch-order-button");
+const screenshot_button = document.querySelector("#screenshot-button");
+
+function enable_WatchOrder_Or_Screenshot_Button(enable) {
+  if(enable) {
+    if(sessionStorage.getItem("currentScreenshotButtonStatus") == "screenshot") {
+      screenshot_button.style.display = "block";
+    } else if (sessionStorage.getItem("currentScreenshotButtonStatus") == "watch-order") {
+      watch_order_button.style.display = "block";    
+    } else {
+      sessionStorage.setItem("currentScreenshotButtonStatus", "watch-order");
+      watch_order_button.style.display = "block";   
+    }
+  } else {    
+    watch_order_button.style.display = "none";
+    screenshot_button.style.display = "none";
+  }
+}
+
+
+function jumpToNextPage() {    
+  if(fetched_data.pagination.has_next_page) {
+    page_select = Number(fetched_data.pagination.current_page) + 1;  
+    page_jump_button.innerText = `${page_select} | PG Jump`;
+    displayAnimeList('getAnimeListByQueryWithFilter')
+    page_select = "";
+  }
+}
+
+
+function jumpToPreviousPage() {
+  page_select = Number(fetched_data.pagination.current_page) - 1; 
+  page_jump_button.innerText = `${page_select} | PG Jump`;   
+  displayAnimeList('getAnimeListByQueryWithFilter')
+  page_select = "";
+}
+
+
+function changePageJumpButtonsColor(caller) {
+  caller.style.color = "orange";
+  caller.style.border = "1px solid orange";  
+  caller.style.backgroundColor = "#1d1713";
+  setTimeout(() => {      
+    caller.style.color = "#03ffdd";
+    caller.style.border = "1px solid #00eeff";  
+    caller.style.backgroundColor = "#13171d";
+
+    if(caller == page_jump_input) page_jump_input.value = "";
+  }, 1500);
+}
+
+
+function jumpToSpecifiedPage(caller) {
+  page_jump_input.blur();
+
+  if(caller == "first-page-button") {
+    changePageJumpButtonsColor(first_page_button);
+    if(fetched_data.pagination.current_page == 1) {      
+      document.querySelector("#result-status-container").scrollIntoView({ behavior: 'smooth', block: 'start' }); 
+      return;
+    }   
+    page_select = 1;
+    page_jump_button.innerText = `${page_select} | PG Jump`; 
+    displayAnimeList('getAnimeListByQueryWithFilter')
+    page_select = "";
+
+  } else if(caller == "last-page-button") {    
+    changePageJumpButtonsColor(last_page_button);
+    if(fetched_data.pagination.current_page == fetched_data.pagination.last_visible_page) {      
+      document.querySelector("#result-status-container").scrollIntoView({ behavior: 'smooth', block: 'start' }); 
+      return;
+    }     
+    page_select = fetched_data.pagination.last_visible_page;   
+    page_jump_button.innerText = `${page_select} | PG Jump`; 
+    displayAnimeList('getAnimeListByQueryWithFilter')
+    page_select = "";
+
+  } else if(caller == "page-jump-input" &&     
+    page_jump_input.value.trim() != 0 && 
+    page_jump_input.value.trim() != "" &&
+    page_jump_input.value.trim() <= fetched_data.pagination.last_visible_page &&
+    page_jump_input.value.trim() >= 1) {
+            
+      changePageJumpButtonsColor(page_jump_input);
+      if(page_jump_input.value.trim() == fetched_data.pagination.current_page) {                
+        if(filter_enable_status) {
+          setTimeout(() => {
+            document.querySelector("#result-status-container").scrollIntoView({ behavior: 'smooth', block: 'start' });       
+          }, 1500);
+        }
+        return;
+      } 
+      page_select = page_jump_input.value.trim();   
+      page_jump_button.innerText = `${page_select} | PG Jump`;    
+      displayAnimeList('getAnimeListByQueryWithFilter')
+      page_select = "";
+  }
+}
+
+
+function gotoFilterPageJump() {  
+  if(!filter_enable_status) showFilterOptions();
+  document.querySelector("#filter-target-after-reset").scrollIntoView({ behavior: 'smooth', block: 'start' }); 
+}
+
+
+function enablePageNavigationButtons(length) {  
+  if(length == 0) {
+    previous_page_button.style.display = "none";
+    next_page_button.style.display = "none";
+    page_jump_button.style.display = "none";
+    return;
+  } else {
+    previous_page_button.style.display = "block";
+    next_page_button.style.display = "block";
+    page_jump_button.style.display = "block";    
+  }
+
+  if(fetched_data.pagination.has_next_page) {
+    next_page_button.disabled = false;
+    next_page_button.style.color = "#00ffff";  
+    next_page_button.style.backgroundColor = "#006381";
+  } else {
+    next_page_button.disabled = true;
+    next_page_button.style.color = "#007f7f";  
+    next_page_button.style.backgroundColor = "#003343";    
+  }
+
+  if(fetched_data.pagination.current_page != 1) { 
+    previous_page_button.disabled = false;       
+    previous_page_button.style.color = "#00ffff";  
+    previous_page_button.style.backgroundColor = "#006381";
+  } else {
+    previous_page_button.disabled = true;       
+    previous_page_button.style.color = "#007f7f";  
+    previous_page_button.style.backgroundColor = "#003343"; 
+  }
+}
+
+
 
 /*############ Fetch and Display AnimeList Code ############*/
 
@@ -577,6 +720,7 @@ async function getTopAnimeList() {
   const signal = fetchAbortController.signal;
   
   let url = `${jikanAPI_URL}/top/anime?sfw=${sfw}`;
+  if(page_select != "") url += `&page=${page_select}`;
   
   const response = await fetch(url, {signal});    
   const data = await response.json();
@@ -602,24 +746,99 @@ async function getAnimeListByQueryWithFilter() {
     endDate = `${end_year.value}-${end_month.value || "01"}-${end_day.value || "01"}`;
   }
 
-  let url = `${jikanAPI_URL}/anime?q=${encodeURIComponent(query.value.trim())}&sfw=${sfw}`;
+  let url = `${jikanAPI_URL}/anime?sfw=${sfw}`;
+  if(query.value.trim() != "") url += `&q=${encodeURIComponent(query.value.trim())}`;
   if(type_select.value != "") url += `&type=${type_select.value}`;
   if(score_select.value != "") url += `&score=${score_select.value}`;
   if(status_select.value != "") url += `&status=${status_select.value}`;
   if(rating_select.value != "") url += `&rating=${rating_select.value}`;
+  if(page_select != "") url += `&page=${page_select}`;
   if(startDate != "") url += `&start_date=${startDate}`;
   if(endDate != "") url += `&end_date=${endDate}`;
-  if(genresSelectedArray.length != 0) url += `&genres=${genresSelectedArray.join(',')}`; 
-     
+  if(genresSelectedArray.length != 0) url += `&genres=${genresSelectedArray.join(',')}`;      
+
   const response = await fetch(url, {signal});    
   const data = await response.json();  
   return data;
 }
 
 
+
+let prevPageNumber;
+let pageTypingTimeout
+
+page_jump_input.addEventListener('input', function() {
+  clearTimeout(pageTypingTimeout);
+  pageTypingTimeout = setTimeout(() => {  
+    if(prevPageNumber != page_jump_input.value.trim() && page_jump_input.value.trim() != '') {
+      prevPageNumber = page_jump_input.value.trim();      
+      jumpToSpecifiedPage('page-jump-input');    
+    }
+
+    if(prevPageNumber == page_jump_input.value.trim() && page_jump_input.value.trim() != '') {
+      page_jump_input.blur();
+      changePageJumpButtonsColor(page_jump_input);
+      if(filter_enable_status) {
+        setTimeout(() => {
+          document.querySelector("#result-status-container").scrollIntoView({ behavior: 'smooth', block: 'start' });       
+        }, 1500);
+      }      
+    }
+  }, 1000);
+});
+
+
+page_jump_input.addEventListener("keydown", (event) => {
+  if(event.key == "Enter") {          
+    jumpToSpecifiedPage('page-jump-input');    
+  }
+});
+
+
+function enableFilterPageJumpButtons(enable) {  
+  first_page_button.disabled = !enable;  
+  page_jump_input.disabled = !enable;
+  last_page_button.disabled = !enable; 
+  
+  if(enable) {
+    first_page_button.style.color = "#03ffdd";
+    first_page_button.style.border = "1px solid #00eeff";  
+
+    page_jump_input.style.color = "#03ffdd";
+    page_jump_input.style.border = "1px solid #00eeff";     
+    page_jump_input.style.setProperty("--placeholder-color", "#03ffdd");    
+
+    last_page_button.style.color = "#03ffdd";
+    last_page_button.style.border = "1px solid #00eeff";  
+    last_page_button.innerText = fetched_data.pagination.last_visible_page;     
+
+  } else {
+    first_page_button.style.color = "#09b09c";
+    first_page_button.style.border = "1px solid #079ca9";      
+
+    page_jump_input.style.color = "#09b09c";
+    page_jump_input.style.border = "1px solid #079ca9"; 
+    page_jump_input.style.setProperty("--placeholder-color", "#09b09c");          
+
+    last_page_button.style.color = "#09b09c";
+    last_page_button.style.border = "1px solid #079ca9";    
+    last_page_button.innerText = "1";
+  }
+}
+
+
+let fetched_data = null;
+
 async function displayAnimeList(fetch_option) {
-  try {    
-    let fetched_data = null;
+  if(filter_enable_status) {
+    setTimeout(() => {
+      document.querySelector("#result-status-container").scrollIntoView({ behavior: 'smooth', block: 'start' });       
+    }, 1500);
+  }
+  
+  enablePageNavigationButtons(0);    
+
+  try {        
     showLoading(true);
     search_result.innerHTML = "";
    
@@ -627,14 +846,17 @@ async function displayAnimeList(fetch_option) {
       case 'getTopAnimeList':
         fetched_data = await getTopAnimeList();
         break;     
-      case 'getAnimeListByQueryWithFilter':
-        (query.value.trim() == "" && !isFilterApplied()) ? fetched_data = await getTopAnimeList() : fetched_data = await getAnimeListByQueryWithFilter();        
+      case 'getAnimeListByQueryWithFilter':        
+        (query.value.trim() == "" && !isFilterApplied()) ? fetched_data = await getTopAnimeList() : fetched_data = await getAnimeListByQueryWithFilter();                       
         break;
     }
 
-    showLoading(false);
-    const dataLength = fetched_data.data.length;      
-    showAnimeListCount(dataLength);
+    showLoading(false);               
+    const dataLength = fetched_data.pagination.items.count;     
+    enableFilterPageJumpButtons(true);     
+    enablePageNavigationButtons(dataLength);    
+    enable_WatchOrder_Or_Screenshot_Button(dataLength > 0);
+    showAnimeListCount(dataLength);    
 
     if(dataLength > 0) {            
       for(let i = 0; i < dataLength; i++) {
@@ -665,7 +887,9 @@ async function displayAnimeList(fetch_option) {
         }
       }
     } 
-  } catch(error) {    
+  } catch(error) {       
+    enable_WatchOrder_Or_Screenshot_Button(false);     
+    enableFilterPageJumpButtons(false);
     showError(error);
   } 
 }

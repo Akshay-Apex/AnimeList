@@ -178,7 +178,7 @@ main h1 {
 }
 
 #filter-section {
-  height: 280px;
+  height: 330px;
 }
 
 #genres-section {
@@ -186,7 +186,7 @@ main h1 {
 }
 
 hr {
-  margin: 0px 0px 20px!important;
+  margin: 0px 0px 20px !important;
 }
 
 .no-arrow {
@@ -393,6 +393,75 @@ select::-webkit-scrollbar {
 
 .scored-by {
   color: #00ff2a;
+}
+
+#page-controls {
+  display: flex;
+  justify-content: space-between;
+}
+
+#first-page-button, #last-page-button {   
+  border-radius: 5px;  
+  padding: 5px 8px;  
+  background-color: #13171d;     
+  border: 1px solid #00eeff;  
+  color: #03ffdd;
+}
+
+#page-jump-input {
+  width: 90px;  
+  height: 15.5px;
+  padding: 5px 8px;  
+  border-radius: 5px;   
+  border: 1px solid #00eeff;  
+  font-size: small;  
+  color: #03ffdd;
+  background-color: #13171d; 
+  --placeholder-color: #03ffdd;   
+  
+  &::placeholder {
+    text-align: center;
+    font-size: small;            
+    color: var(--placeholder-color);       
+    font-style: italic;
+  }
+
+  &:focus {
+    outline: none;      
+    color: #03ffdd;    
+    transition: all 0.15s ease-in-out;  
+
+    &::placeholder {      
+      color: #03ffdd;    
+    }
+  }
+}
+
+#previous-button, #next-button {    
+  display: none;
+  width: 60px;
+  margin-top: 20px;
+  height: 41.5px;  
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: large;
+  border: 1px dotted #00ffff;
+  color: #00ffff;
+  background-color: #006381;  
+  cursor: pointer;
+}
+
+#page-jump {  
+  display: none;
+  margin-top: 20px;
+  height: 41.5px;  
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: large;
+  border: 1px dotted #00ffff;
+  color: #00ffff;  
+  background-color: #006381;    
+  cursor: pointer;
 }
 
 footer {      
