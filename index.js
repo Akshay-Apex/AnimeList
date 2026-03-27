@@ -420,10 +420,10 @@ async function takeScreenshot(wrapper, imgContainer, img) {
 
   // Draws Element Node to canvas
   html2canvas(wrapper, {
-      allowTaint: true,
+      allowTaint: false,
       useCORS: true,       
       windowWidth: '440px',
-      x: -0.1,              
+      x: -0.5,              
       y: 0,
       scale: 5
   }).then(canvas => {        
