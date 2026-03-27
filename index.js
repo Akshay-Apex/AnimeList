@@ -380,7 +380,7 @@ async function loadImgWithProxy(img) {
 } 
 
 // Takes screenshot of Anime Card and save it with the Anime name as a PNG image file
-function takeScreenshot(wrapper, imgContainer, img) { 
+async function takeScreenshot(wrapper, imgContainer, img) { 
   if(sessionStorage.getItem("currentScreenshotButtonStatus") != "screenshot") {
     return;
   }
