@@ -355,12 +355,44 @@ function screenshot_And_WatchOrder_Button_Toggle(callingButton, targetButton) {
   (sessionStorage.getItem("currentScreenshotButtonStatus") == "screenshot") ? sessionStorage.setItem("currentScreenshotButtonStatus", "watch-order") : sessionStorage.setItem("currentScreenshotButtonStatus", "screenshot");
 }
 
+// Loads the proxy image with proper headers 
+async function loadImgWithProxy(img) {
+  const proxyUrl = "https://proxy.corsfix.com/?";    
+  const finalUrl = proxyUrl + img.src;
+
+  try {
+    const response = await fetch(finalUrl);
+    if (!response.ok) throw new Error("HTTP " + response.status);
+
+    const blob = await response.blob();
+    const objectURL = URL.createObjectURL(blob);
+
+    const imgLocal = document.createElement("img");
+    imgLocal.src = objectURL;
+
+    return imgLocal;
+    
+  } catch (err) {
+    alert("Proxy image fetch failed! \nScreenshot aborted!");
+    console.error("Error: ", err);
+    return null;
+  }
+} 
 
 // Takes screenshot of Anime Card and save it with the Anime name as a PNG image file
 function takeScreenshot(wrapper, imgContainer, img) { 
   if(sessionStorage.getItem("currentScreenshotButtonStatus") != "screenshot") {
     return;
   }
+
+  const imgProxy = await loadImgWithProxy(img);
+  if (!imgProxy) return;
+  
+  img.src = imgProxy.src;
+
+  await new Promise(resolve => {
+    img.onload = resolve;
+  });
 
   const animeTitle = (wrapper.querySelector('h4').innerText)
   .replace(/[\/\\:*?"<>|]/g, '') // Replaces illegal file name characters
