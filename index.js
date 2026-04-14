@@ -422,7 +422,7 @@ async function takeScreenshot(wrapper, imgContainer, img) {
       allowTaint: false,
       useCORS: true,       
       windowWidth: '440px',
-      x: 0.5,              
+      x: 0,              
       y: 0,
       scale: 5
   }).then(canvas => {        
