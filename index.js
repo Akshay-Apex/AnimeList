@@ -361,6 +361,8 @@ function loadImgWithProxy(img) {
   const proxyUrl = "https://animelist.akshayknaik777.workers.dev/?url=";
 
   const finalUrl = proxyUrl + encodeURIComponent(originalSrc);
+  
+  if(img.src.includes("https://animelist.akshayknaik777.workers.dev/?url=")) return;
 
   return new Promise((resolve, reject) => {
     img.crossOrigin = "anonymous";
