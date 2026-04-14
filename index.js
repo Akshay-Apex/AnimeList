@@ -355,44 +355,41 @@ function screenshot_And_WatchOrder_Button_Toggle(callingButton, targetButton) {
   (sessionStorage.getItem("currentScreenshotButtonStatus") == "screenshot") ? sessionStorage.setItem("currentScreenshotButtonStatus", "watch-order") : sessionStorage.setItem("currentScreenshotButtonStatus", "screenshot");
 }
 
-// Loads the proxy image with proper headers 
-async function loadImgWithProxy(img) {
-  const proxyUrl = "https://proxy.corsfix.com/?";    
-  const finalUrl = proxyUrl + img.src;
+// Loads the image with proper headers using proxy worker
+function loadImgWithProxy(img) {
+  const originalSrc = img.src;
+  const proxyUrl = "https://animelist.akshayknaik777.workers.dev/?url=";
 
-  try {
-    const response = await fetch(finalUrl);
-    if (!response.ok) throw new Error("HTTP " + response.status);
+  const finalUrl = proxyUrl + encodeURIComponent(originalSrc);
 
-    const blob = await response.blob();
-    const objectURL = URL.createObjectURL(blob);
+  return new Promise((resolve, reject) => {
+    img.crossOrigin = "anonymous";
+    img.src = finalUrl;
 
-    const imgLocal = document.createElement("img");
-    imgLocal.src = objectURL;
+    img.onload = () => {      
+      resolve(img);
+    };    
 
-    return imgLocal;
-    
-  } catch (err) {
-    alert("Proxy image fetch failed! \nScreenshot aborted!");
-    console.error("Error: ", err);
-    return null;
-  }
-} 
+    img.onerror = () => {  
+      img.crossOrigin = null;
+      img.src = originalSrc;    
+      reject(new Error("Proxy Image Fetch Failed!"));
+    };
+  });
+}
 
 // Takes screenshot of Anime Card and save it with the Anime name as a PNG image file
 async function takeScreenshot(wrapper, imgContainer, img) { 
   if(sessionStorage.getItem("currentScreenshotButtonStatus") != "screenshot") {
     return;
-  }
+  }    
 
-  const imgProxy = await loadImgWithProxy(img);
-  if (!imgProxy) return;
-  
-  img.src = imgProxy.src;
-
-  await new Promise(resolve => {
-    img.onload = resolve;
-  });
+  try {    
+    await loadImgWithProxy(img);
+  } catch (e) {
+    alert(`[ ${e.message} ] Screenshot aborted!`);        
+    return;
+  }  
 
   const animeTitle = (wrapper.querySelector('h4').innerText)
   .replace(/[\/\\:*?"<>|]/g, '') // Replaces illegal file name characters
