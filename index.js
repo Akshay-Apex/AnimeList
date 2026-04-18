@@ -318,11 +318,9 @@ async function fetchAndDisplayGenreButtons() {
   let url = `${jikanAPI_URL}/genres/anime`;    
   try {
     const response = await fetch(url);    
-    const data = await response.json();
-    
-    const sortedGenres = data.data.sort((a, b) => a.mal_id - b.mal_id);
+    const data = await response.json();        
 
-    sortedGenres.forEach(genre => {
+    data.data.forEach(genre => {
       const button = document.createElement('button');
       button.className = 'genre-button';
       button.textContent = genre.name;
@@ -838,6 +836,83 @@ async function getTopAnimeList() {
 }
 
 
+async function getAnimeByIDsRecursively(idList, index = 0, result = []) {
+    if (!idList || index >= idList.length) {
+        return result;
+    }
+    
+    if (fetchAbortController) {
+        fetchAbortController.abort();
+    }
+    fetchAbortController = new AbortController();
+    const signal = fetchAbortController.signal;
+
+    const id = idList[index];
+    const url = `${jikanAPI_URL}/anime/${id}`;
+    
+    const response = await fetch(url, { signal });
+    const data = await response.json();
+
+    result.push(data.data);    
+
+    // Rate limits to 3 requests per second
+    await new Promise(r => setTimeout(r, 333));
+
+    return getAnimeByIDsRecursively(idList, index + 1, result);
+}
+
+
+function sortAnimeByReleaseDate(animeDataObj) {  
+  animeDataObj.data.sort((a, b) => {          
+    const validA = !isNaN(Date.parse(a.aired?.from));
+    const validB = !isNaN(Date.parse(b.aired?.from));
+
+    if(!validA && !validB) return 0;
+    if(!validA) return 1;
+    if(!validB) return -1;
+
+    const dateA = new Date(a.aired?.from)
+    const dateB = new Date(b.aired?.from)
+
+    return dateA - dateB;
+  });
+}
+
+
+async function getAnimeWatchOrder(id, animeDataJSON) {
+  if (fetchAbortController) {
+    fetchAbortController.abort();    
+  }
+  fetchAbortController = new AbortController();
+  const signal = fetchAbortController.signal;
+
+  let url = `${jikanAPI_URL}/anime/${id}/relations`;  
+  
+  const response = await fetch(url, {signal});    
+  const data = await response.json();
+  
+  // Include current anime in the relations
+  let animeRelations = data.data.flatMap(r => 
+    r.entry
+      .filter(entry => entry.type == "anime")
+      .map(entry => entry.mal_id)
+  );
+  animeRelations.push(Number(id));
+
+  // Find already available relations data
+  animeDataJSON.data = animeDataJSON.data.filter(anime => animeRelations.includes(anime.mal_id));
+
+  // Remove existing relations from the list 
+  animeRelations = animeRelations.filter(animeId => !animeDataJSON.data.some(anime => anime.mal_id == animeId));
+
+  fetched_relations = await getAnimeByIDsRecursively(animeRelations);
+  fetched_relations.forEach(relation => animeDataJSON.data.push(relation)); 
+  sortAnimeByReleaseDate(animeDataJSON);
+
+  return animeDataJSON;
+}
+
+
 async function getAnimeListByQueryWithFilter() {
   if (fetchAbortController) {
     fetchAbortController.abort();    
@@ -936,9 +1011,16 @@ function enableFilterPageJumpButtons(enable) {
   }
 }
 
+let currentMalId = null;
+function handleClickWatchOrder(id) {
+  currentMalId = id;
+  displayAnimeList("getAnimeWatchOrder");  
+}
+
 
 let fetched_data = null;
 let fetch_loading_status = false;
+let animeDataJSON = null;
 
 async function displayAnimeList(fetch_option) {
   if(filter_enable_status) {
@@ -961,28 +1043,34 @@ async function displayAnimeList(fetch_option) {
         break;     
       case 'getAnimeListByQueryWithFilter':        
         (query.value.trim() == "" && !isFilterApplied()) ? fetched_data = await getTopAnimeList() : fetched_data = await getAnimeListByQueryWithFilter();                       
+        break;  
+      case 'getAnimeWatchOrder':
+        fetched_data = await getAnimeWatchOrder(currentMalId, animeDataJSON);        
         break;
     }
     
     showLoading(false);               
-    const dataLength = fetched_data.pagination.items.count;     
+    const dataLength = fetched_data.data.length;     
     enableFilterPageJumpButtons(true);     
     enablePageNavigationButtons(dataLength);    
     enable_WatchOrder_Or_Screenshot_Button(dataLength > 0);
     showAnimeListCount(dataLength);    
 
-    if(dataLength > 0) {            
-      for(let i = 0; i < dataLength; i++) {
+    if(dataLength > 0) {    
+      animeDataJSON = fetched_data;            
+      for(let i = 0; i < dataLength; i++) {        
+
         const animeData = fetched_data.data[i];      
         const genresList = animeData.genres.map(genre => genre.name).join(' / ');   
         const animeImageURL = animeData.images.jpg.large_image_url;   
-        const animeTitle = animeData.title_english || animeData.title;                        
+        const animeTitle = animeData.title_english || animeData.title;   
+        const malID = animeData.mal_id;                     
 
         search_result.innerHTML += `
           <div id="${i}" class="card-wrapper" onclick="takeScreenshot(this, this.querySelector('.image-container') ,this.querySelector('img'))" tabindex="0">
             <div class="image-container">
               <span class="restricted-18">18+</span>
-              <img src="${animeImageURL}" alt="Anime Poster">
+              <img src="${animeImageURL}" alt="Anime Poster" id="${malID}" onclick="handleClickWatchOrder(this.id)">
             </div>
             <div class="card-data">
                 <h4>${animeTitle}</h4> 
