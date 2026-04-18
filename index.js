@@ -856,7 +856,7 @@ async function getAnimeByIDsRecursively(idList, index = 0, result = []) {
     result.push(data.data);    
 
     // Rate limits to 3 requests per second
-    await new Promise(r => setTimeout(r, 333));
+    await new Promise(r => setTimeout(r, 350));
 
     return getAnimeByIDsRecursively(idList, index + 1, result);
 }
