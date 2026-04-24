@@ -823,11 +823,8 @@ function gotoCurrentPage() {
   previous_page_button.style.color = "#00ffff";  
   previous_page_button.style.backgroundColor = "#006381";
 
-  previous_page_button.onclick = () => {
-    page_select = Number(fetched_data.pagination.current_page);         
-    displayAnimeList('getAnimeListByQueryWithFilter')
-    page_select = "";
-
+  previous_page_button.onclick = () => {    
+    displayAnimeList('loadFetchedDataClone');
     previous_page_button.onclick = jumpToPreviousPage;
   };
 }
@@ -1045,7 +1042,7 @@ function handleClickWatchOrder(id, mode) {
 
 let fetched_data = null;
 let fetch_loading_status = false;
-let animeDataJSON = null;
+let fetched_data_clone = null;
 
 async function displayAnimeList(fetch_option) {
   if(filter_enable_status) {
@@ -1066,13 +1063,18 @@ async function displayAnimeList(fetch_option) {
     switch(fetch_option) {
       case 'getTopAnimeList':
         fetched_data = await getTopAnimeList();
+        fetched_data_clone = structuredClone(fetched_data);
         break;     
       case 'getAnimeListByQueryWithFilter':        
         (query.value.trim() == "" && !isFilterApplied()) ? fetched_data = await getTopAnimeList() : fetched_data = await getAnimeListByQueryWithFilter();                       
+        fetched_data_clone = structuredClone(fetched_data);
         break;  
       case 'getAnimeWatchOrder':
         watchOrderFetch = true;
-        fetched_data = await getAnimeWatchOrder(imgMalId, animeDataJSON);        
+        fetched_data = await getAnimeWatchOrder(imgMalId, fetched_data);        
+        break;
+      case 'loadFetchedDataClone':
+        fetched_data = structuredClone(fetched_data_clone);
         break;
     }
     
@@ -1089,8 +1091,7 @@ async function displayAnimeList(fetch_option) {
     enable_WatchOrder_Or_Screenshot_Button(dataLength > 0);
     showAnimeListCount(dataLength);    
 
-    if(dataLength > 0) {    
-      animeDataJSON = fetched_data;            
+    if(dataLength > 0) {                  
       for(let i = 0; i < dataLength; i++) {        
 
         const animeData = fetched_data.data[i];      
