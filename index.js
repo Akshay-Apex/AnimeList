@@ -24,7 +24,8 @@ const filter_container_selectTags = document.querySelectorAll("select");
 
 const type_select = document.querySelector("#type");
 const status_select = document.querySelector("#status");
-const score_select = document.querySelector("#score");
+const min_score_select = document.querySelector("#min_score");
+const max_score_select = document.querySelector("#max_score");
 const rating_select = document.querySelector("#rating");
 
 const first_page_button = document.querySelector("#first-page-button");
@@ -124,10 +125,10 @@ function manageDateFilterPrecedence(selectTag) {
 
 
 function isFilterApplied() {
-  if(type_select.value != "" || status_select.value != "" || score_select.value != "" ||
-    rating_select.value != "" || start_year.value != "" || start_month.value != "" ||
-    start_day.value != "" || end_year.value != "" || end_month.value != "" ||
-    end_day.value != "" || genresSelectedArray.length != 0) {
+  if(type_select.value != "" || status_select.value != "" || min_score_select.value != "" ||
+    max_score_select.value != "" || rating_select.value != "" || start_year.value != "" || 
+    start_month.value != "" || start_day.value != "" || end_year.value != "" || 
+    end_month.value != "" || end_day.value != "" || genresSelectedArray.length != 0) {
       return true;
   }
 }
@@ -142,14 +143,28 @@ filter_container_selectTags.forEach(selectTag => {
 });
 
 
-score_select.addEventListener('input', function() {
-  if(score_select.value != "") {
-    score_select.style.color = "orange";
-    score_select.style.border = "1px solid orange";
-    score_select.style.backgroundColor = "#1d1713";  
+min_score_select.addEventListener('input', function() {
+  if(min_score_select.value != "") {
+    min_score_select.style.color = "orange";
+    min_score_select.style.border = "1px solid orange";
+    min_score_select.style.backgroundColor = "#1d1713";  
   } else {        
-    score_select.style.border = "1px solid #00eeff";  
-    score_select.style.backgroundColor = "#13171d";  
+    min_score_select.style.border = "1px solid #00eeff";  
+    min_score_select.style.backgroundColor = "#13171d";  
+  }
+
+  enableFilterAndClearButton(isFilterApplied()); 
+});
+
+
+max_score_select.addEventListener('input', function() {
+  if(max_score_select.value != "") {
+    max_score_select.style.color = "orange";
+    max_score_select.style.border = "1px solid orange";
+    max_score_select.style.backgroundColor = "#1d1713";  
+  } else {        
+    max_score_select.style.border = "1px solid #00eeff";  
+    max_score_select.style.backgroundColor = "#13171d";  
   }
 
   enableFilterAndClearButton(isFilterApplied()); 
@@ -203,9 +218,13 @@ function clearFilterSelection() {
 
   enableFilterAndClearButton(false);
 
-  score_select.value = "";  
-  score_select.style.border = "1px solid #00eeff";  
-  score_select.style.backgroundColor = "#13171d"; 
+  min_score_select.value = "";  
+  min_score_select.style.border = "1px solid #00eeff";  
+  min_score_select.style.backgroundColor = "#13171d"; 
+
+  max_score_select.value = "";  
+  max_score_select.style.border = "1px solid #00eeff";  
+  max_score_select.style.backgroundColor = "#13171d"; 
 
   filter_container_selectTags.forEach(selectTag => {
     selectTag.value = "";
@@ -947,7 +966,8 @@ async function getAnimeListByQueryWithFilter() {
   let url = `${jikanAPI_URL}/anime?sfw=${sfw}`;
   if(query.value.trim() != "") url += `&q=${encodeURIComponent(query.value.trim())}`;
   if(type_select.value != "") url += `&type=${type_select.value}`;
-  if(score_select.value != "") url += `&score=${score_select.value}`;
+  if(min_score_select.value != "") url += `&min_score=${min_score_select.value}`;
+  if(max_score_select.value != "") url += `&max_score=${max_score_select.value}`;
   if(status_select.value != "") url += `&status=${status_select.value}`;
   if(rating_select.value != "") url += `&rating=${rating_select.value}`;
   if(page_select != "") url += `&page=${page_select}`;

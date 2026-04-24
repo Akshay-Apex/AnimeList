@@ -200,7 +200,7 @@ hr {
   color: #03ffdd;
 }
 
-#score {
+#min_score, #max_score {
   width: 90px;  
   height: 15.5px;
   margin-bottom: 20px;

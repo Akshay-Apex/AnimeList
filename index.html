@@ -80,11 +80,12 @@
         <br>
 
         <label>Score</label>
-        <input type="number" placeholder="Score (1 - 9.99)" id="score" style="margin-left: 9px;">        
+        <input type="number" placeholder="Min Score" id="min_score" style="margin-left: 9px;">        
+        <input type="number" placeholder="Max Score" id="max_score" style="margin-left: 5px;">        
         <br>
 
         <label>Rating</label>
-        <select id="rating" class="no-arrow">
+        <select id="rating" class="no-arrow" style="margin-left: 1px;">
           <option value="">All</option>
           <option value="g">G - All Ages</option>
           <option value="pg">PG - Children</option>
@@ -124,7 +125,7 @@
         <br>
         
         <label>Page Jump</label>   
-        <button id="first-page-button" onclick="jumpToSpecifiedPage('first-page-button')">1</button> 
+        <button id="first-page-button" onclick="jumpToSpecifiedPage('first-page-button')" style="margin-left: 1px;">1</button> 
         <span class="page-special-symbol">&lt;&lt;</span>    
         <input type="number" placeholder="Page Number" id="page-jump-input">
         <span class="page-special-symbol">&gt;&gt;</span>    
