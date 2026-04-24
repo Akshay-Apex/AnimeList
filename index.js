@@ -817,6 +817,22 @@ function auto_Enable_Disable_ScrollButton(disable = false) {
 }
 
 
+function gotoCurrentPage() {  
+  previous_page_button.style.display = "block"; 
+  previous_page_button.disabled = false;       
+  previous_page_button.style.color = "#00ffff";  
+  previous_page_button.style.backgroundColor = "#006381";
+
+  previous_page_button.onclick = () => {
+    page_select = Number(fetched_data.pagination.current_page);         
+    displayAnimeList('getAnimeListByQueryWithFilter')
+    page_select = "";
+
+    previous_page_button.onclick = jumpToPreviousPage;
+  };
+}
+
+
 
 /*############ Fetch and Display AnimeList Code ############*/
 
@@ -1067,6 +1083,7 @@ async function displayAnimeList(fetch_option) {
       enablePageNavigationButtons(dataLength);    
     } else {
       enableFilterPageJumpButtons(false); 
+      gotoCurrentPage();
     }
 
     enable_WatchOrder_Or_Screenshot_Button(dataLength > 0);
