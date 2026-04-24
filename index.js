@@ -1011,10 +1011,20 @@ function enableFilterPageJumpButtons(enable) {
   }
 }
 
-let currentMalId = null;
-function handleClickWatchOrder(id) {
-  currentMalId = id;
-  displayAnimeList("getAnimeWatchOrder");  
+let imgMalId = null;
+function handleClickWatchOrder(id, mode) {
+  if(sessionStorage.getItem("currentScreenshotButtonStatus") == "screenshot") {    
+    return;
+  }
+  
+  if(mode == "Internal") {
+    console.log("Internal");
+    imgMalId = id;
+    displayAnimeList("getAnimeWatchOrder"); 
+  } else if(mode == "Chiaki") {    
+    const cardMalId = id.dataset.mal_id;    
+    window.open(`https://chiaki.site/?/tools/watch_order/id/${cardMalId}`, "_blank");
+  }
 }
 
 
@@ -1045,7 +1055,7 @@ async function displayAnimeList(fetch_option) {
         (query.value.trim() == "" && !isFilterApplied()) ? fetched_data = await getTopAnimeList() : fetched_data = await getAnimeListByQueryWithFilter();                       
         break;  
       case 'getAnimeWatchOrder':
-        fetched_data = await getAnimeWatchOrder(currentMalId, animeDataJSON);        
+        fetched_data = await getAnimeWatchOrder(imgMalId, animeDataJSON);        
         break;
     }
     
@@ -1070,9 +1080,9 @@ async function displayAnimeList(fetch_option) {
           <div id="${i}" class="card-wrapper" onclick="takeScreenshot(this, this.querySelector('.image-container') ,this.querySelector('img'))" tabindex="0">
             <div class="image-container">
               <span class="restricted-18">18+</span>
-              <img src="${animeImageURL}" alt="Anime Poster" id="${malID}" onclick="handleClickWatchOrder(this.id)">
+              <img src="${animeImageURL}" alt="Anime Poster" id="${malID}" onclick="handleClickWatchOrder(this.id, 'Internal')">
             </div>
-            <div class="card-data">
+            <div class="card-data" data-mal_id="${malID}" onclick="handleClickWatchOrder(this, 'Chiaki')">
                 <h4>${animeTitle}</h4> 
                 <h5><b>Genres:</b> <span class="sub-data">${genresList}</span></h5>
                 <h5><b>Episodes:</b> <span class="sub-data">${animeData.episodes} - <span class="episode-time">[ ${animeData.duration} ]</span></span></h5>    
