@@ -1017,8 +1017,7 @@ function handleClickWatchOrder(id, mode) {
     return;
   }
   
-  if(mode == "Internal") {
-    console.log("Internal");
+  if(mode == "Internal") {    
     imgMalId = id;
     displayAnimeList("getAnimeWatchOrder"); 
   } else if(mode == "Chiaki") {    
@@ -1046,6 +1045,7 @@ async function displayAnimeList(fetch_option) {
     showLoading(true);
     fetch_loading_status = true;
     search_result.innerHTML = "";
+    let watchOrderFetch = false;
    
     switch(fetch_option) {
       case 'getTopAnimeList':
@@ -1055,14 +1055,20 @@ async function displayAnimeList(fetch_option) {
         (query.value.trim() == "" && !isFilterApplied()) ? fetched_data = await getTopAnimeList() : fetched_data = await getAnimeListByQueryWithFilter();                       
         break;  
       case 'getAnimeWatchOrder':
+        watchOrderFetch = true;
         fetched_data = await getAnimeWatchOrder(imgMalId, animeDataJSON);        
         break;
     }
     
     showLoading(false);               
-    const dataLength = fetched_data.data.length;     
-    enableFilterPageJumpButtons(true);     
-    enablePageNavigationButtons(dataLength);    
+    const dataLength = fetched_data.data.length;  
+    if(!watchOrderFetch) {
+      enableFilterPageJumpButtons(true);     
+      enablePageNavigationButtons(dataLength);    
+    } else {
+      enableFilterPageJumpButtons(false); 
+    }
+
     enable_WatchOrder_Or_Screenshot_Button(dataLength > 0);
     showAnimeListCount(dataLength);    
 
