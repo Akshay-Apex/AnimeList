@@ -491,13 +491,36 @@ setInterval(refresh_Search_When_Online, 3000);
 let typingTimeout;
 let prevQueryString;
 let symbolState = "search";
+let pastedInput = false;
+
+
+// Clears the previous query value to make way for the new value from the clipboard
+query.addEventListener("paste", (e) => {
+  e.preventDefault();  
+  query.value = e.clipboardData.getData("text");
+  pastedInput = true;
+  query.dispatchEvent(new Event("input")); 
+});
 
 query.addEventListener("input", () => {
   clearTimeout(typingTimeout);
   typingTimeout = setTimeout(() => {  
     if(prevQueryString != query.value.trim() && query.value.trim() != '') {
       prevQueryString = query.value.trim();
-      displayAnimeList('getAnimeListByQueryWithFilter');  
+
+      // Blurs the keyboard on paste and then searches for the anime
+      if(pastedInput) {
+        query.blur();
+        pastedInput = false;
+        displayAnimeList('getAnimeListByQueryWithFilter');          
+      } else {
+        displayAnimeList('getAnimeListByQueryWithFilter');  
+      }
+    } else {
+      if(pastedInput) {
+        query.blur();
+        pastedInput = false;                
+      } 
     }
   }, 1000);
 
