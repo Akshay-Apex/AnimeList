@@ -1,4 +1,4 @@
-const jikanAPI_URL = 'https://api.jikan.moe/v4';  
+const tenraiAPI_URL = 'https://api.tenrai.org/v1';  
 
 const query = document.getElementById("query");
 const input_symbol_container = document.querySelector("#input-symbol-container");
@@ -12,7 +12,7 @@ const animeListCount = document.getElementById("animeListCount");
 
 let search_result = document.getElementById("search-result");
 let fetchAbortController = null;
-let sfw = 1;
+let sfw = true;
 
 /*################### Filter Button Code ###################*/
 
@@ -334,7 +334,7 @@ async function fetchAndDisplayGenreButtons() {
   }
   
   error_genre_display.innerHTML = "";
-  let url = `${jikanAPI_URL}/genres/anime`;    
+  let url = `${tenraiAPI_URL}/genres/anime`;    
   try {
     const response = await fetch(url);    
     const data = await response.json();        
@@ -600,7 +600,7 @@ query.addEventListener("focus", () => {
 // Toggles between SFW and NSFW and triggers fetch after each toggle
 function toggleButton() {
   const sfw_button = document.getElementById("sfw-button");
-  sfw = (sfw == 1) ? 0 : 1;
+  sfw = (sfw == true) ? false : true;
   
   if (sfw_button.innerText === "SFW") {
     sfw_button.innerText = "NSFW";
@@ -882,7 +882,7 @@ async function getTopAnimeList() {
   fetchAbortController = new AbortController();
   const signal = fetchAbortController.signal;
   
-  let url = `${jikanAPI_URL}/top/anime?sfw=${sfw}`;
+  let url = `${tenraiAPI_URL}/top/anime?sfw=${sfw}`;
   if(page_select != "") url += `&page=${page_select}`;
   
   const response = await fetch(url, {signal});    
@@ -903,7 +903,7 @@ async function getAnimeByIDsRecursively(idList, index = 0, result = []) {
     const signal = fetchAbortController.signal;
 
     const id = idList[index];
-    const url = `${jikanAPI_URL}/anime/${id}`;
+    const url = `${tenraiAPI_URL}/anime/${id}`;
     
     const response = await fetch(url, { signal });
     const data = await response.json();
@@ -941,7 +941,7 @@ async function getAnimeWatchOrder(id, animeDataJSON) {
   fetchAbortController = new AbortController();
   const signal = fetchAbortController.signal;
 
-  let url = `${jikanAPI_URL}/anime/${id}/relations`;  
+  let url = `${tenraiAPI_URL}/anime/${id}/relations`;  
   
   const response = await fetch(url, {signal});    
   const data = await response.json();
@@ -986,7 +986,7 @@ async function getAnimeListByQueryWithFilter() {
     endDate = `${end_year.value}-${end_month.value || "01"}-${end_day.value || "01"}`;
   }
 
-  let url = `${jikanAPI_URL}/anime?sfw=${sfw}`;
+  let url = `${tenraiAPI_URL}/anime?sfw=${sfw}`;
   if(query.value.trim() != "") url += `&q=${encodeURIComponent(query.value.trim())}`;
   if(type_select.value != "") url += `&type=${type_select.value}`;
   if(min_score_select.value != "") url += `&min_score=${min_score_select.value}`;
